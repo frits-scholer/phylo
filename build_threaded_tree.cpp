@@ -17,12 +17,13 @@ string string_value;
 double number_value;
 
 struct node {
-  node * ltree;
-  node * rtree;
+  node* ltree;
+  node* rtree;
+  node* backlink;
   double distance;
   string info;
   bool isleaf;
-  node(): ltree(nullptr), rtree(nullptr),isleaf(false) {}
+  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false) {}
 };
 
 Token_value get_token(istream& is) {
@@ -52,7 +53,7 @@ Token_value get_token(istream& is) {
 void inOrder(node *root) {
     if (root->ltree) inOrder(root->ltree);
     if (root->isleaf) cout << root->info << " ";
-    cout << root << ": " << root->distance << endl;
+    cout << root->distance << '-' << root->backlink << endl;
     if (root->rtree) inOrder(root->rtree);
 }
 
@@ -64,13 +65,13 @@ int main() {
   ifstream is(fname.c_str());
   */
   ifstream is("toy_tree_small.nwk");
-  //ifstream is("test.nwk");
   if (!is) {
     cerr << "could not open file\n";
     return 1;
   }
   int level(0);
   node *root = new node();
+  root->backlink = root;
   root->info = "root";
   node *cur_node = root;
   stack<node *> A;
@@ -82,6 +83,7 @@ int main() {
       level++;
       A.push(cur_node);
       cur_node->ltree = new node();
+      cur_node->ltree->backlink = cur_node;
       cur_node = cur_node->ltree;
       break;
     case RP:
@@ -101,6 +103,7 @@ int main() {
     case COMMA:
       cur_node = A.top();
       cur_node->rtree = new node();
+      cur_node->rtree->backlink = cur_node;
       cur_node = cur_node->rtree;
       break;
     case NORMAL:case END:
