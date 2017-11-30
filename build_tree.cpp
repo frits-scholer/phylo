@@ -25,8 +25,7 @@ struct node {
   double distance;
   string info;
   bool isleaf;
-  node(): isleaf(false) {}
-  node(string s): info(s),isleaf(true) {}
+  node(): ltree(nullptr), rtree(nullptr),isleaf(false) {}
 };
 
 Token_value get_token(istream& is) {
@@ -53,6 +52,13 @@ Token_value get_token(istream& is) {
   }
 }
 
+void inOrder(node *root) {
+    if (root->ltree) inOrder(root->ltree);
+    if (root->isleaf) cout << root->info << " ";
+    cout << root->distance << endl;
+    if (root->rtree) inOrder(root->rtree);
+}
+
 int main() {
   /*
   cout << "filename? ";
@@ -69,7 +75,6 @@ int main() {
   node *root = new node();
   root->info = "root";
   node *cur_node = root;
-  cout << level << endl;
   stack<node *> A;
   while (is) {
     get_token(is);
@@ -80,34 +85,30 @@ int main() {
       A.push(cur_node);
       cur_node->ltree = new node();
       cur_node = cur_node->ltree;
-      cout << "level " << level << endl;
       break;
     case RP:
       level--;
       cur_node = A.top();
       A.pop();
-      cout << "level" << level;
       break;
     case NAME:
       cur_node->info = string_value;
       cur_node->isleaf = true;
-      cout << string_value << ' ';
       break;
     case COLON:
-      cout << ':';
       break;
     case NUMBER:
       cur_node->distance = number_value;
-      cout << number_value << endl;
       break;
     case COMMA:
       cur_node->rtree = new node();
       cur_node = cur_node->rtree;
-      cout << ',';
       break;
     case NORMAL:case END:
       cout << "error";
     }
   }
   cout << cur_node->info << endl;
+  inOrder(root);
+  cout << endl;
 }
