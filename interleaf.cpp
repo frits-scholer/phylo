@@ -1,11 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <stack>
+#include <vector>
 #include <algorithm>
 #include <string>
 #include <cctype>
-
 using namespace std;
+
+#define all(t) begin(t), end(t)
+#define sp << " " <<
 
 enum Token_value {
   NORMAL,NAME,NUMBER,END,
@@ -49,29 +52,20 @@ Token_value get_token(istream& is) {
   }
 }
 
-void inOrder(node *root) {
-    if (root->ltree) inOrder(root->ltree);
-    if (root->isleaf) cout << root->info << " ";
-    cout << ": " << root->distance << endl;
-    if (root->rtree) inOrder(root->rtree);
-}
-
-int main() {
-
+node* build_tree(vector<node*>& leaves) {
+  /*
   cout << "filename? ";
   string fname;
   cin >> fname;
   ifstream is(fname.c_str());
-
-  //ifstream is("toy_tree_small.nwk");
+  */
+  ifstream is("toy_tree_small.nwk");
   //ifstream is("test.nwk");
   if (!is) {
-    cerr << "could not open file\n";
-    return 1;
+    cerr << "Could not open file\n";
+    return nullptr;
   }
-  int level(0);
   node *root = new node();
-  root->info = "root";
   node *cur_node = root;
   stack<node *> A;
   while (is) {
@@ -79,19 +73,18 @@ int main() {
     if (curr_tok == END) break;
     switch(curr_tok) {
     case LP:
-      level++;
       A.push(cur_node);
       cur_node->ltree = new node();
       cur_node = cur_node->ltree;
       break;
     case RP:
-      level--;
       cur_node = A.top();
       A.pop();
       break;
     case NAME:
       cur_node->info = string_value;
       cur_node->isleaf = true;
+      leaves.push_back(cur_node);
       break;
     case COLON:
       break;
@@ -107,7 +100,21 @@ int main() {
       cout << "error";
     }
   }
-  cout << cur_node->info << endl;
-  inOrder(root);
-  cout << endl;
+  return root;
+}
+
+void inOrder(node *root, vector<double>& dist) {
+    if (root->ltree) inOrder(root->ltree);
+    if (root->isleaf) cout << root->info << " ";
+    //update and output distances to previous nodes
+    if (root->rtree) inOrder(root->rtree);
+}
+
+int main() {
+  vector<node*> leaves;
+  vector<double> distances;
+  node* root = build_tree(leaves);
+  if (!root) return 1;
+  inOrder(root, distances);
+  for_each(all(leaves),[](const node* l){cout << l->info sp l->distance << endl;});
 }

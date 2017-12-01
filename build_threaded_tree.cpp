@@ -46,14 +46,14 @@ Token_value get_token(istream& is) {
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
     return curr_tok = NAME;
   default:
-  return NORMAL;
+  return curr_tok = NORMAL;
   }
 }
 
 void inOrder(node *root) {
     if (root->ltree) inOrder(root->ltree);
     if (root->isleaf) cout << root->info << " ";
-    cout << root->distance << '-' << root->backlink << endl;
+    cout << ": " << root->distance << '-' << root->backlink << endl;
     if (root->rtree) inOrder(root->rtree);
 }
 
