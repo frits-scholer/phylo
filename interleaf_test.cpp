@@ -54,16 +54,15 @@ Token_value get_token(istream& is) {
 }
 
 node* build_tree(vector<node*>& leaves) {
-
-  cerr << "filename? ";
+  /*
+  cout << "filename? ";
   string fname;
   cin >> fname;
   ifstream is(fname.c_str());
-  /*
-  //ifstream is("toy_tree_small.nwk");
+  */
+  ifstream is("toy_tree_small.nwk");
   //ifstream is("test.nwk");
   //ifstream is("7330_leaves.nwk");
-  */
   if (!is) {
     cerr << "Could not open file\n";
     return nullptr;
@@ -131,7 +130,7 @@ bool search(node* root, node* child) {
 
 node* common_ancestor(node* x, node* y) {//y occurs before x
   node* z = x->backlink;
-  while (!search(z,y)) {if (z==z->backlink) break;z = z->backlink;}
+  while (!search(z,y)) {if (z==z->backlink) break;else z = z->backlink;}
   return z;
 }
 
@@ -139,6 +138,7 @@ double distance(node* x, node* y) {//y occurs before x
   node* z = common_ancestor(x, y);
   return ancestor_distance(z, x) + ancestor_distance(z, y);
 }
+
 
 void inOrder(node *root) {
     if (root->ltree) inOrder(root->ltree);
@@ -150,15 +150,18 @@ void inOrder(node *root) {
 int main() {
   vector<node*> leaves;
   node* root = build_tree(leaves);
+  //root->info = "root";
   if (!root) return 1;
   //for_each(all(leaves),[](const node* l){cout << l->info sp l->distance << endl;});
-  //inOrder(root);
-  //cout << endl;
+  inOrder(root);
+  cout << endl;
+
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    //cout << (*il)->info << ':';
+    cout << (*il)->info << ':';
     for (auto jl = begin(leaves);jl != il;jl++) {
-      cout << distance(*il,*jl) << ' ';
+      cout << (*jl)->info << (char)LP << distance(*il,*jl) << (char)RP << ' ';
     }
     cout << endl;
   }
+
 }
