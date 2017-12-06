@@ -54,13 +54,11 @@ Token_value get_token(istream& is) {
 }
 
 node* build_tree(vector<node*>& leaves) {
-  /*
-  cout << "filename? ";
+  cerr << "filename?\n";
   string fname;
   cin >> fname;
   ifstream is(fname.c_str());
-  */
-  ifstream is("toy_tree_small.nwk");
+  //ifstream is("toy_tree_small.nwk");
   //ifstream is("test.nwk");
   //ifstream is("7330_leaves.nwk");
   if (!is) {
@@ -147,21 +145,33 @@ void inOrder(node *root) {
     if (root->rtree) inOrder(root->rtree);
 }
 
+int preOrder(node *root) {//returns nr of leaves
+  if (root->isleaf) return 1;
+  int nr_of_leaves = preOrder(root->ltree) + preOrder(root->rtree);
+  cout << root->info << '[' << nr_of_leaves << ']' << endl;
+  return nr_of_leaves;
+}
+
 int main() {
   vector<node*> leaves;
   node* root = build_tree(leaves);
-  //root->info = "root";
   if (!root) return 1;
+  int ml, gamma;
+  cerr << "Minimum nr of leaves of considered clades?\n";
+  cin >> ml;
+  cerr << "Gamma factor?\n";
+  cin >> gamma;
   //for_each(all(leaves),[](const node* l){cout << l->info sp l->distance << endl;});
-  inOrder(root);
+  cout << ml sp gamma << endl;
+  preOrder(root);
   cout << endl;
-
+  /*
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    cout << (*il)->info << ':';
+    //cout << (*il)->info << ':';
     for (auto jl = begin(leaves);jl != il;jl++) {
-      cout << (*jl)->info << (char)LP << distance(*il,*jl) << (char)RP << ' ';
+      cout << distance(*il,*jl) << ' ';
     }
     cout << endl;
   }
-
+  */
 }

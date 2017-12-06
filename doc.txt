@@ -1,0 +1,20 @@
+§1 Introduction
+
+preliminary program interleaf.cpp
+
+[Set up tree]
+     	User input: treefile, min nr of leaves and gamma
+[Select clades]
+	Calc for clades with at least min nr of leaves mean of interleaf distances
+[Calc grand median]
+	Calc median of these means gm
+[Calc mad]
+	Calc mad for i such that mu(i) >= gm mad = median(mu(i)-gm)
+[Filter]
+	keep i with mu(i) <= gm +(gamma*mad)
+[Get distributions]
+	For all i calc D(i) = {interleaf distances for clade with mu(i)}
+
+§2 Set up tree
+
+interleaf_test.cpp is used to develop the data structures
