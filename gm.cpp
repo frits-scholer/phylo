@@ -28,8 +28,13 @@ struct node {
   string info;
   bool selected;
   bool isleaf;
-  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false) {}
+  double sum_ild;//current sum of interleaf distances
+  int count_ild;
+  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false),
+	  sum_ild(0.0), count_ild(0){}
 };
+
+typedef pair<double, node*> node_mean;
 
 Token_value get_token(istream& is) {
   char ch;
@@ -111,6 +116,17 @@ node* build_tree(vector<node*>& leaves) {
   return root;
 }
 
+int select_clades(node *root) {//returns nr of leaves
+  if (root->isleaf) return 1;
+  int nr_leaves = select_clades(root->ltree) + select_clades(root->rtree);
+  if (nr_leaves >= ml ) {
+    //cout << root->info << '[' << nr_leaves << ']' << endl;
+    root->selected = true;
+  }
+  else root->selected = false;
+  return nr_leaves;
+}
+
 double ancestor_distance(node* z, node* w) {//w is descendant of z
   double dist = 0;
   while (w != z) {
@@ -139,23 +155,28 @@ double distance(node* x, node* y) {//y occurs before x
   return ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
-
-void inOrder(node *root) {
-    if (root->ltree) inOrder(root->ltree);
-    /*if (root->isleaf)*/ cout << root->info << " ";
-    cout << ": " << root->distance << " <- " << root->backlink->info << endl;
-    if (root->rtree) inOrder(root->rtree);
+void process_distance(node* x, node* y) {//y occurs before x
+  node* z = common_ancestor(x, y);
+  double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  while (true) {//skip small clades
+    if (z->selected) break;
+    if (z == z->backlink) break;//root is always selected
+    z = z->backlink;
+  }
+  //from here on up all clades are selected
+  while (true) {//
+    z->sum_ild += ild;
+    z->count_ild++;
+    if (z == z->backlink) break;//root is always selected
+    z = z->backlink;
+  }
 }
 
-int preOrder(node *root) {//returns nr of leaves
-  if (root->isleaf) return 1;
-  int nr_leaves = preOrder(root->ltree) + preOrder(root->rtree);
-  if (nr_leaves >= ml ) {
-    //cout << root->info << '[' << nr_leaves << ']' << endl;
-    root->selected = true;
-  }
-  else root->selected = false;
-  return nr_leaves;
+void inOrder(node *root, vector<node_mean>& v) {
+  if (root->ltree) inOrder(root->ltree, v);
+    if (!(root->isleaf) && root->selected)
+      v.push_back(node_mean(root->sum_ild/root->count_ild, root));
+		  if (root->rtree) inOrder(root->rtree, v);
 }
 
 int main() {
@@ -167,17 +188,21 @@ int main() {
   cin >> ml;
   cerr << "Gamma factor?\n";
   cin >> gamma;
-  //for_each(all(leaves),[](const node* l){cout << l->info sp l->distance << endl;});
-  cout << ml sp gamma << endl;
-  preOrder(root);
-  cout << endl;
-  /*
+  cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma << endl;
+  select_clades(root);
+  root->selected = true;
+  //set up interleaf distances
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    //cout << (*il)->info << ':';
     for (auto jl = begin(leaves);jl != il;jl++) {
-      cout << distance(*il,*jl) << ' ';
+      process_distance(*il,*jl);
     }
-    cout << endl;
   }
-  */
+  vector<node_mean> means;
+  inOrder(root, means);
+  sort(all(means));
+  size_t msize = means.size();
+  double gm;
+  if (msize & 1) gm = means[msize/2].first;
+  else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
+  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
 }

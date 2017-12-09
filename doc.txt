@@ -17,4 +17,40 @@ preliminary program interleaf.cpp
 
 §2 Set up tree
 
-interleaf_test.cpp is used to develop the data structures
+means.cpp is used to develop the data structures
+
+While calculating ild calc sum and count and store in selected ancestors
+Then traverse the tree in any order (inorder) and store the means in a vector
+consisting of (mean, node pointer), which can then be sorted. This is the output of
+means.cpp
+
+§3 Calc grand median
+
+This is trivially the element at means.size()/2 (vector indices are 0-based)
+or if this is even the average of 2 middle elements.
+This is the ouput of gm.cpp.
+
+§4 Calc mad
+
+Since median(mu(i) - gm) = median(mu(i)) - gm where mu(i) >= gm
+In extreme cases there are a lot of elements equal to the median
+This (and gm) is the output of mad.cpp
+
+§5 Filter
+
+First we calculate upperbound = gm + gamma*mad
+Then using the means vector we erase everything with a mean greater than upperbound
+Output of filter.cpp
+
+§6 Get distributions
+
+We have the clades with their means in the vector means
+we could turn the select value of all nodes off now
+and then turn the nodes for all the nodes in means back on.
+Then we could prune the tree.
+Question:
+If we delete a clade is it guaranteed that we don't delete a valid subtree?
+
+Testing:
+make the program and then run from terminal for example
+filter < il1.in or filter < ilbig.in
