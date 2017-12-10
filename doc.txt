@@ -48,9 +48,6 @@ We have the clades with their means in the vector means
 we could turn the select value of all nodes off now
 and then turn the nodes for all the nodes in means back on.
 Then we could prune the tree.
+see distrib.cpp
 Question:
 If we delete a clade is it guaranteed that we don't delete a valid subtree?
-
-Testing:
-make the program and then run from terminal for example
-filter < il1.in or filter < ilbig.in
