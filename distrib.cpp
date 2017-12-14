@@ -205,7 +205,7 @@ void process_distance2(node* x, node* y) {//y occurs before x
   }
   //from here on up all clades are selected
   while (true) {//
-    (z->D).push_back(ild);
+    if (z->selected) (z->D).push_back(ild);
     if (z == z->backlink) break;//root is always selected
     z = z->backlink;
   }
