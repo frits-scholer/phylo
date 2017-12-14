@@ -264,5 +264,5 @@ int main() {
     for (double d: m.second->D) cout << d << " ";
     cout << endl;
   }
-  cout << "finished!" << endl;
+  //  cout << "finished!" << endl;
 }
