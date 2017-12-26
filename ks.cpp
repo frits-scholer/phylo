@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <cctype>
+#include "kstwo.hpp"
 using namespace std;
 
 #define all(t) begin(t), end(t)
@@ -38,6 +39,7 @@ struct node {
 };
 
 typedef pair<double, node*> node_mean;
+typedef vector<node*> nodelist;
 
 Token_value get_token(istream& is) {
   char ch;
@@ -147,9 +149,12 @@ bool search(node* root, node* child) {
   return false;
 }
 
-node* common_ancestor(node* x, node* y) {//y occurs before x
+node* common_ancestor(node* x, node* y) {
   node* z = x->backlink;
-  while (!search(z,y)) {if (z==z->backlink) break;else z = z->backlink;}
+  while (!search(z,y)) {
+    if (z==z->backlink) break;
+    else z = z->backlink;
+  }
   return z;
 }
 
@@ -201,20 +206,29 @@ void printLeaves(node *root) {
   if (root->isleaf) cout << root->info << ' ';
 }
 
-void process_distance2(node* x, node* y) {//y occurs before x
+void process_distance2(node* x, node* y) {
   node* z = common_ancestor(x, y);
   double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {//skip unselected clades
-    if (z->selected) break;
-    if (z == z->backlink) break;//root is always selected
+  while (true) {
+    z->D.push_back(ild);//generate D even if internal node is not selected
+    if (z == z->backlink) return;
     z = z->backlink;
   }
-  //from here on up all clades are selected
-  while (true) {//
-    if (z->selected) (z->D).push_back(ild);
-    if (z == z->backlink) break;//root is always selected
+}
+
+bool is_ancestor(node* x, node* y) {//x is ancestor of y
+  node* z = y->backlink;
+  do {
+    if (x == z) return true;
     z = z->backlink;
-  }
+  } while (z != z->backlink);
+  return x==z;
+} 
+
+void preSort(node *root) {
+  if (root->ltree) preSort(root->ltree);
+  if (root->rtree) preSort(root->rtree);
+  if (!(root->isleaf)) sort(all(root->D));
 }
 
 int main() {
@@ -265,11 +279,31 @@ int main() {
       process_distance2(*il,*jl);//add the interleaf distance to the selected nodes
     }
   }
-  for (auto m: means) {
-    cout << m.second->info << ": ";
-    //for (double d: m.second->D) cout << d << " ";
-    printLeaves(m.second);
+  //presort all data
+  preSort(root);
+  nodelist sel_nodes;
+  for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printLeaves(n);
     cout << endl;
   }
-  //  cout << "finished!" << endl;
+  double p[sel_nodes.size()][sel_nodes.size()];
+  for (unsigned int i = 1;i < sel_nodes.size();i++) {
+    for (unsigned int j = 0;j < i;j++) {
+      cout << sel_nodes[i]->info sp sel_nodes[j]->info;
+      if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
+	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
+	p[i][j] = ks.second;
+	}
+      else {
+	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
+	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
+	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	p[i][j] = max(ksi.second, ksj.second);
+      }
+      cout sp p[i][j] << endl;
+    }
+  }
+
 }

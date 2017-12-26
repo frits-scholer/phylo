@@ -14,6 +14,8 @@ preliminary program interleaf.cpp
 	keep i with mu(i) <= gm +(gamma*mad)
 [Get distributions]
 	For all i calc D(i) = {interleaf distances for clade with mu(i)}
+[Get Q values]
+	set up KS in ks.cpp
 
 §2 Set up tree
 
@@ -47,7 +49,13 @@ Output of filter.cpp
 We have the clades with their means in the vector means
 we could turn the select value of all nodes off now
 and then turn the nodes for all the nodes in means back on.
-Then we could prune the tree.
 see distrib.cpp
-Question:
-If we delete a clade is it guaranteed that we don't delete a valid subtree?
+
+
+§7 Statistics
+
+use pre-sorted data in KS method see kstwo.hpp
+If selected nodes have ancestral relationship calc p value
+else take max of p value with common ancestor
+Benjamini Hochberg correction of p values
+FDR 20% or 5%
