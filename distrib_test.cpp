@@ -1,11 +1,11 @@
 #include <iostream>
+#include <iterator>
 #include <fstream>
 #include <stack>
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <cctype>
-#include "kstwo.hpp"
 using namespace std;
 
 #define all(t) begin(t), end(t)
@@ -149,7 +149,7 @@ bool search(node* root, node* child) {
   return false;
 }
 
-node* common_ancestor(node* x, node* y) {
+node* common_ancestor(node* x, node* y) {//y occurs before x
   node* z = x->backlink;
   while (!search(z,y)) {
     if (z==z->backlink) break;
@@ -166,7 +166,6 @@ double distance(node* x, node* y) {//y occurs before x
 void process_distance(node* x, node* y) {//y occurs before x
   node* z = common_ancestor(x, y);
   double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  cout << x->info sp y->info sp ild << endl;
   while (true) {//skip small clades
     if (z->selected) break;
     if (z == z->backlink) break;//root is always selected
@@ -217,21 +216,6 @@ void process_distance2(node* x, node* y) {
   }
 }
 
-bool is_ancestor(node* x, node* y) {//x is ancestor of y
-  node* z = y->backlink;
-  do {
-    if (x == z) return true;
-    z = z->backlink;
-  } while (z != z->backlink);
-  return x==z;
-} 
-
-void preSort(node *root) {
-  if (root->ltree) preSort(root->ltree);
-  if (root->rtree) preSort(root->rtree);
-  if (!(root->isleaf)) sort(all(root->D));
-}
-
 int main() {
   vector<node*> leaves;
   node* root = build_tree(leaves);
@@ -249,5 +233,44 @@ int main() {
     for (auto jl = begin(leaves);jl != il;jl++) {
       process_distance(*il,*jl);
     }
+  }
+  vector<node_mean> means;
+  inOrder(root, means);
+  sort(all(means));
+  size_t msize = means.size();
+  double gm;
+  if (msize & 1) gm = means[msize/2].first;
+  else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
+  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
+  auto it = lower_bound(all(means),node_mean(gm,nullptr));
+  msize = distance(it, end(means));
+  double mad;
+  if (msize & 1) mad = (it + msize/2)->first - gm;
+  else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
+  cout << "mad = " << mad << endl;
+  double upperbound = gm + gamma * mad;
+  it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
+  means.erase(it, end(means));
+  cout << "size of filtered means = " << means.size() << endl;
+  clear(root);//turn off the whole tree
+  for (auto m: means) {
+    m.second->selected = true;//turn on selected nodes
+    preOrder(m.second);//turn on selected leaves
+  }
+  for (auto il=begin(leaves)+1;il != end(leaves);il++) {
+    if (!((*il)->selected)) continue;
+    for (auto jl = begin(leaves);jl != il;jl++) {
+      if (!((*jl)->selected)) continue;
+      process_distance2(*il,*jl);//add the interleaf distance to the selected nodes
+    }
+  }
+  nodelist sel_nodes;
+  for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printLeaves(n);
+    cout << endl;
+    copy(all(n->D),ostream_iterator<double>(cout," "));
+    cout << endl;
   }
 }

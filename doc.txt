@@ -59,3 +59,22 @@ If selected nodes have ancestral relationship calc p value
 else take max of p value with common ancestor
 Benjamini Hochberg correction of p values
 FDR 20% or 5%
+
+§8 Debugging
+
+interleaf_test.cpp proves the interleaf distances are right
+distrib_test.cpp outputs the distributions and they are correct
+grand median and mad are correct
+ancestor is correct
+node equivalencies
+2    4
+4    2
+6    6
+12   7
+16   9
+20   10
+22   11
+24   12
+26   13
+28   14
+

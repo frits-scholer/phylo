@@ -47,7 +47,9 @@ if __name__ == '__main__':
     node_to_mean_pairwise_dist = {n: np.mean(node_to_pairwise_leaf_distance_distribution[n]) for n in list_of_internal_node}
     # based on pariwise leaf distant distritbution of all nodes, calculate upper-limit of within-clade pairwise distance = med_x + user-defined-multiple*mad_x
     med_x = np.median(node_to_mean_pairwise_dist.values())
+    print med_x
     mad_x = np.median([x - med_x for x in node_to_mean_pairwise_dist.values() if x >= med_x])  # because global distribution is likely not normal
+    print mad_x
     # update list of internal nodes to be considered for clade delineation to those whose mean pairwise distance < upper-limit
     list_of_internal_node = [n for n in list_of_internal_node if node_to_mean_pairwise_dist[n] <= (med_x + (params.mad*mad_x))]
 
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     for i, j in itertools.combinations(list_of_internal_node, 2):
         # if either i or j is an ancestral node of the other
         if (i in node_to_ancestral_nodes[j]) or (j in node_to_ancestral_nodes[i]):
+            print i, j
             nodepair_to_KS_pvalue[(i,j)] = stats.ks_2samp(node_to_pairwise_leaf_distance_distribution[i], node_to_pairwise_leaf_distance_distribution[j]).pvalue
         else:
             # find common ancestor node (ca) linking i and j

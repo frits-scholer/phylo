@@ -38,6 +38,7 @@ struct node {
 };
 
 typedef pair<double, node*> node_mean;
+typedef vector<node*> nodelist;
 
 Token_value get_token(istream& is) {
   char ch;
@@ -149,7 +150,10 @@ bool search(node* root, node* child) {
 
 node* common_ancestor(node* x, node* y) {//y occurs before x
   node* z = x->backlink;
-  while (!search(z,y)) {if (z==z->backlink) break;else z = z->backlink;}
+  while (!search(z,y)) {
+    if (z==z->backlink) break;
+    else z = z->backlink;
+  }
   return z;
 }
 
@@ -201,18 +205,12 @@ void printLeaves(node *root) {
   if (root->isleaf) cout << root->info << ' ';
 }
 
-void process_distance2(node* x, node* y) {//y occurs before x
+void process_distance2(node* x, node* y) {
   node* z = common_ancestor(x, y);
   double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {//skip unselected clades
-    if (z->selected) break;
-    if (z == z->backlink) break;//root is always selected
-    z = z->backlink;
-  }
-  //from here on up all clades are selected
-  while (true) {//
-    if (z->selected) (z->D).push_back(ild);
-    if (z == z->backlink) break;//root is always selected
+  while (true) {
+    z->D.push_back(ild);//generate D even if internal node is not selected
+    if (z == z->backlink) return;
     z = z->backlink;
   }
 }
@@ -250,7 +248,7 @@ int main() {
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
   cout << "mad = " << mad << endl;
   double upperbound = gm + gamma * mad;
-  it = upper_bound(all(means), node_mean(upperbound+0.000001, nullptr));
+  it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
   cout << "size of filtered means = " << means.size() << endl;
   clear(root);//turn off the whole tree
@@ -265,11 +263,11 @@ int main() {
       process_distance2(*il,*jl);//add the interleaf distance to the selected nodes
     }
   }
-  for (auto m: means) {
-    cout << m.second->info << ": ";
-    //for (double d: m.second->D) cout << d << " ";
-    printLeaves(m.second);
+  nodelist sel_nodes;
+  for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printLeaves(n);
     cout << endl;
   }
-  //  cout << "finished!" << endl;
 }

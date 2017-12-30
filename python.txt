@@ -1,0 +1,3 @@
+fix output - made it default
+what is ladderize
+itertools.combinations lists all 2 combinations

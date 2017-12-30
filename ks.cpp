@@ -264,7 +264,7 @@ int main() {
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
   cout << "mad = " << mad << endl;
   double upperbound = gm + gamma * mad;
-  it = upper_bound(all(means), node_mean(upperbound+0.000001, nullptr));
+  it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
   cout << "size of filtered means = " << means.size() << endl;
   clear(root);//turn off the whole tree
@@ -291,8 +291,9 @@ int main() {
   double p[sel_nodes.size()][sel_nodes.size()];
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info;
+      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
       if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
+	cout << "A";
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p[i][j] = ks.second;
 	}
