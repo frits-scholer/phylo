@@ -7,7 +7,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--tree', type=str,  default='toy_tree_small.nwk', help='Rooted input phylogenetic tree (NEWICK format).')
     parser.add_argument('-c', '--min_clade_size', type=int, default=3, help='Minimum number of leaves to be considered a clade (default: %(default)s)')
     parser.add_argument('-m', '--mad', type=int, default=3, help='Admissible multiple of positive-skew median absolute deviation of median patristic distance of a clade (default: %(default)s)')
-    parser.add_argument('-o', '--outfname', type=str, help='Output filename (optional).')
+    #parser.add_argument('-o', '--outfname', type=str, default = 'test_output.txt', help='Output filename (optional).')
     params = parser.parse_args()
 
     import ete3, itertools
@@ -30,9 +30,10 @@ if __name__ == '__main__':
 
     # list of internal nodes (indices)
     list_of_internal_node = nindex_to_node.keys()
+    #print list_of_internal_node
     # dictionary of ancestral lineage to each internal node - required for determining inter-cluster divergence
     node_to_ancestral_nodes = {n:[node_to_nindex[anc_node] for anc_node in nindex_to_node[n].iter_ancestors()] for n in list_of_internal_node}
-
+    #print node_to_ancestral_nodes
     # pairwise distances between all leaves in tree
     leafpair_to_patristic_distance = {}
     for x, y in itertools.combinations(tree.get_leaves(), 2):
@@ -47,9 +48,9 @@ if __name__ == '__main__':
     node_to_mean_pairwise_dist = {n: np.mean(node_to_pairwise_leaf_distance_distribution[n]) for n in list_of_internal_node}
     # based on pariwise leaf distant distritbution of all nodes, calculate upper-limit of within-clade pairwise distance = med_x + user-defined-multiple*mad_x
     med_x = np.median(node_to_mean_pairwise_dist.values())
-    print med_x
+    #print med_x
     mad_x = np.median([x - med_x for x in node_to_mean_pairwise_dist.values() if x >= med_x])  # because global distribution is likely not normal
-    print mad_x
+    #print mad_x
     # update list of internal nodes to be considered for clade delineation to those whose mean pairwise distance < upper-limit
     list_of_internal_node = [n for n in list_of_internal_node if node_to_mean_pairwise_dist[n] <= (med_x + (params.mad*mad_x))]
 
@@ -60,35 +61,33 @@ if __name__ == '__main__':
     for i, j in itertools.combinations(list_of_internal_node, 2):
         # if either i or j is an ancestral node of the other
         if (i in node_to_ancestral_nodes[j]) or (j in node_to_ancestral_nodes[i]):
-            print i, j
+
             nodepair_to_KS_pvalue[(i,j)] = stats.ks_2samp(node_to_pairwise_leaf_distance_distribution[i], node_to_pairwise_leaf_distance_distribution[j]).pvalue
+            #print i, j, nodepair_to_KS_pvalue[(i,j)]
         else:
             # find common ancestor node (ca) linking i and j
             pairwise_dist_distribution_common_ancestor = [leafpair_to_patristic_distance[(x, y)] for x, y in itertools.combinations(list(set(nindex_to_list_of_leaf_nodes[i])|set(nindex_to_list_of_leaf_nodes[j])), 2)]
             # perform KS-tests for (i vs ca) and (j vs ca), then take the conservative (higher) p-value
             nodepair_to_KS_pvalue[(i,j)] = max([stats.ks_2samp(node_to_pairwise_leaf_distance_distribution[i], pairwise_dist_distribution_common_ancestor).pvalue, stats.ks_2samp(node_to_pairwise_leaf_distance_distribution[j], pairwise_dist_distribution_common_ancestor).pvalue])
+            #print i, j, nodepair_to_KS_pvalue[(i,j)], node_to_ancestral_nodes[i], node_to_ancestral_nodes[j]
 
     import statsmodels.api as sm
     # multiple-testing correction using BH procedure
     nodepair_list = nodepair_to_KS_pvalue.keys()
-    # qval_list = sm.stats.multipletests([nodepair_to_KS_pvalue[nodepair] for nodepair in nodepair_list], method='fdr_bh')[1].tolist()
-    # nodepair_to_KS_pvalue = {nodepair: qval_list[i] for i, nodepair in enumerate(nodepair_list)}
+    qval_list = sm.stats.multipletests([nodepair_to_KS_pvalue[nodepair] for nodepair in nodepair_list], method='fdr_bh')[1].tolist()
+    nodepair_to_qvalue = {nodepair: qval_list[i] for i, nodepair in enumerate(nodepair_list)}
     # for i, j in nodepair_to_KS_pvalue.keys():
     #    nodepair_to_KS_pvalue[(j,i)] = nodepair_to_KS_pvalue[(i,j)]
 
     # write output
-    print ('\nPrinting output...')
-    if params.outfname:
-        outfname = params.outfname
-    else:
-        outfname = 'test_output.txt'
-    with open(outfname, 'w') as output:
+    print ('\nPrinting output to ... test_output.txt')
+    with open('test_output.txt', 'w') as output:
         # print index of eligible nodes and the leaves subtended to be considered for clades
         for n in list_of_internal_node:
             output.write('{}\t{}\n'.format(n, ','.join(nindex_to_node[n].get_leaf_names())))
         # print KS p-values for node pairs
         for (i,j) in nodepair_to_KS_pvalue.keys():
-            output.write('{}\t{}\t{}\n'.format(i, j, nodepair_to_KS_pvalue[(i,j)]))
+            output.write('{},{}\t{}\t{}\t{},{}\n'.format(i, j, nodepair_to_KS_pvalue[(i,j)],nodepair_to_qvalue[(i,j)], node_to_ancestral_nodes[i], node_to_ancestral_nodes[j]))
 
     print ('\n...done.\n')
     exit(0)

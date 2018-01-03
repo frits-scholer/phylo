@@ -9,12 +9,10 @@ using namespace std;
 
 double probks(double alam) {
 //Kolmogorov-Smirnov probability function.
-
-  int j;
-  double fac=2.0,sum=0.0,term,termbf=0.0;
+  double fac=2.0,sum=0.0,termbf=0.0;
   double a2 = -2.0*alam*alam;
-  for (j=1;j<=100;j++) {
-    term=fac*exp(a2*j*j);
+  for (int j=1;j<=100;j++) {
+    double term=fac*exp(a2*j*j);
     sum += term;
     if (fabs(term) <= EPS1*termbf || fabs(term) <= EPS2*sum) return sum;
     fac = -fac;//Alternating signs in sum.
@@ -24,7 +22,7 @@ double probks(double alam) {
   //Get here only by failing to converge.
 }
 
-pair<double, double> kstwo(vector<double>& data1, vector<double>& data2) {
+pair<double, double> kstwo(const vector<double>& data1, const vector<double>& data2) {
 /*
 Given an array data1[1..n1] , and an array data2[1..n2] , 
 this routine returns the K–
