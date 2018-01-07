@@ -6,6 +6,7 @@
 #include <string>
 #include <cctype>
 #include "kstwo.hpp"
+#include "bh_fdr.hpp"
 using namespace std;
 
 #define all(t) begin(t), end(t)
@@ -288,11 +289,10 @@ int main() {
     printLeaves(n);
     cout << endl;
   }
-
   vector<double> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
+      //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
       if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p.push_back(ks.second);
@@ -303,8 +303,16 @@ int main() {
 	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	p.push_back(max(ksi.second, ksj.second));
       }
-      cout sp p.back() << endl;
     }
   }
-
+  vector<double> q(p.size());
+  bh_fdr(p,q);
+  auto itp = begin(p);
+  auto itq = begin(q);
+  for (unsigned int i = 1;i < sel_nodes.size();i++) {
+    for (unsigned int j = 0;j < i;j++) {
+      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itp sp *itq << endl;
+      itp++; itq++;
+    }
+  }
 }

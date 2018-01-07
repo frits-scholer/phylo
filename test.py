@@ -74,6 +74,8 @@ if __name__ == '__main__':
     import statsmodels.api as sm
     # multiple-testing correction using BH procedure
     nodepair_list = nodepair_to_KS_pvalue.keys()
+    for nodepair in nodepair_list:
+        print nodepair_to_KS_pvalue[nodepair]
     qval_list = sm.stats.multipletests([nodepair_to_KS_pvalue[nodepair] for nodepair in nodepair_list], method='fdr_bh')[1].tolist()
     nodepair_to_qvalue = {nodepair: qval_list[i] for i, nodepair in enumerate(nodepair_list)}
     # for i, j in nodepair_to_KS_pvalue.keys():

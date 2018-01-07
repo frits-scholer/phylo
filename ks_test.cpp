@@ -284,43 +284,15 @@ int main() {
   preSort(root);
   nodelist sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
-  /*
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printLeaves(n);
+  cout << sel_nodes[8]->info sp sel_nodes[9]->info << endl;
+    printLeaves(sel_nodes[8]);
     cout << endl;
-  }
-  */
-  //double p[sel_nodes.size()][sel_nodes.size()];
-  cout << sel_nodes[0]->info sp sel_nodes[3]->info << endl;
-    printLeaves(sel_nodes[0]);
+    copy(all(sel_nodes[8]->D),ostream_iterator<double>(cout," "));
     cout << endl;
-    copy(all(sel_nodes[0]->D),ostream_iterator<double>(cout," "));
+    printLeaves(sel_nodes[9]);
     cout << endl;
-    printLeaves(sel_nodes[3]);
+    copy(all(sel_nodes[9]->D),ostream_iterator<double>(cout," "));
     cout << endl;
-    copy(all(sel_nodes[3]->D),ostream_iterator<double>(cout," "));
-    cout << endl;
-    auto ks = kstwo(sel_nodes[0]->D, sel_nodes[3]->D);
+    auto ks = kstwo(sel_nodes[8]->D, sel_nodes[9]->D);
     cout << ks.first sp ks.second << endl;
-
-  /*
-  for (unsigned int i = 1;i < sel_nodes.size();i++) {
-    for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-      if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
-	cout << "A";
-	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
-	p[i][j] = ks.second;
-	}
-      else {
-	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
-	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
-	p[i][j] = max(ksi.second, ksj.second);
-      }
-      cout sp p[i][j] << endl;
-    }
-  }
-  */
 }
