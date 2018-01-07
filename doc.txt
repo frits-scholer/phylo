@@ -78,3 +78,16 @@ node equivalencies
 26   13
 28   14
 
+§7+ Statistics
+
+create pvals with indices
+bh.cpp with input bh1.in produces the correct bh1.out
+bh_fdr.hpp contains the bh fdr correction
+The final program is ksbh.cpp
+when tested on the big tree I stopped the program after 30 minutes and it had produced
+30 Mb file so there is a problem
+
+There is also a problem with the ks test python version is not the same as decribed in pdf
+see ks_debug.py and ks_debug.cpp
+
+
