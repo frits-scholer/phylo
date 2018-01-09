@@ -89,5 +89,6 @@ when tested on the big tree I stopped the program after 30 minutes and it had pr
 
 There is also a problem with the ks test python version is not the same as decribed in pdf
 see ks_debug.py and ks_debug.cpp
+basically correct though
 
 
