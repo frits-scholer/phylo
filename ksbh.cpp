@@ -232,6 +232,14 @@ void preSort(node *root) {
   if (!(root->isleaf)) sort(all(root->D));
 }
 
+void printAncestors(node *root) {
+  node* z = root;
+  while (z != z->backlink) {
+    z = z->backlink;
+    cout << z->info << " ";
+  }
+}
+
 void show_event(string s, clock_t& tm) {
   tm = clock()-tm;
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
@@ -323,5 +331,10 @@ int main() {
     }
   }
 
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printAncestors(n);
+    cout << endl;
+  }
   show_event("total time", tm);
 }

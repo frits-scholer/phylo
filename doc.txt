@@ -91,4 +91,11 @@ There is also a problem with the ks test python version is not the same as decri
 see ks_debug.py and ks_debug.cpp
 basically correct though
 
+§8 Documentation
+
+Include files kstwo.hpp, bh_fdr.hpp
+final file ksbh.cpp
+to run with toy_tree ./ksbh < il1.in
+with big tree ./ksbh < ilbig.in
+
 
