@@ -98,4 +98,4 @@ final file ksbh.cpp
 to run with toy_tree ./ksbh < il1.in
 with big tree ./ksbh < ilbig.in
 
-
+Make a version with multiple inputs and outputs phylo1.cpp

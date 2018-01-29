@@ -18,27 +18,27 @@ enum Token_value {
 
 Token_value curr_tok=NORMAL;
 string string_value;
-double number_value;
+float number_value;
 int ml;
 
-typedef vector<double> distribution;
+typedef vector<float> distribution;
 
 struct node {
   node* ltree;
   node* rtree;
   node* backlink;
-  double distance;
+  float distance;
   string info;
   bool selected;
   bool isleaf;
-  double sum_ild;//current sum of interleaf distances
+  float sum_ild;//current sum of interleaf distances
   int count_ild;
-  vector<double> D;//needed for KS
+  vector<float> D;//needed for KS
   node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false),
 	  sum_ild(0.0), count_ild(0){}
 };
 
-typedef pair<double, node*> node_mean;
+typedef pair<float, node*> node_mean;
 typedef vector<node*> nodelist;
 
 Token_value get_token(istream& is) {
@@ -132,8 +132,8 @@ int select_clades(node *root) {//returns nr of leaves
   return nr_leaves;
 }
 
-double ancestor_distance(node* z, node* w) {//w is descendant of z
-  double dist = 0;
+float ancestor_distance(node* z, node* w) {//w is descendant of z
+  float dist = 0;
   while (w != z) {
     dist += w->distance;
     w = w->backlink;
@@ -158,14 +158,14 @@ node* common_ancestor(node* x, node* y) {
   return z;
 }
 
-double distance(node* x, node* y) {//y occurs before x
+float distance(node* x, node* y) {//y occurs before x
   node* z = common_ancestor(x, y);
   return ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
 void process_distance(node* x, node* y) {//y occurs before x
   node* z = common_ancestor(x, y);
-  double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
   while (true) {//skip small clades
     if (z->selected) break;
     if (z == z->backlink) break;//root is always selected
@@ -208,7 +208,7 @@ void printLeaves(node *root) {
 
 void process_distance2(node* x, node* y) {
   node* z = common_ancestor(x, y);
-  double ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
   while (true) {
     z->D.push_back(ild);//generate D even if internal node is not selected
     if (z == z->backlink) return;
@@ -253,17 +253,17 @@ int main() {
   inOrder(root, means);
   sort(all(means));
   size_t msize = means.size();
-  double gm;
+  float gm;
   if (msize & 1) gm = means[msize/2].first;
   else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
   cout << "size of means = " sp msize sp "grand median = " << gm << endl;
   auto it = lower_bound(all(means),node_mean(gm,nullptr));
   msize = distance(it, end(means));
-  double mad;
+  float mad;
   if (msize & 1) mad = (it + msize/2)->first - gm;
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
   cout << "mad = " << mad << endl;
-  double upperbound = gm + gamma * mad;
+  float upperbound = gm + gamma * mad;
   it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
   cout << "size of filtered means = " << means.size() << endl;
@@ -289,7 +289,7 @@ int main() {
     cout << endl;
   }
 
-  vector<double> p;
+  vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
       cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
