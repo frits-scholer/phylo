@@ -13,11 +13,11 @@ using namespace std;
 #define sp << " " <<
 
 enum Token_value {
-  NORMAL,NAME,NUMBER,END,
+  NAME,NUMBER,END,
   LP='(',RP=')',COLON=':',COMMA=','
 };
 
-Token_value curr_tok=NORMAL;
+Token_value curr_tok=END;
 string string_value;
 float number_value;
 int ml;
@@ -62,7 +62,11 @@ Token_value get_token(istream& is) {
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
     return curr_tok = NAME;
   default:
-  return curr_tok = NORMAL;
+    is.putback(ch);
+    string_value.clear();
+    if (curr_tok == LP || curr_tok == COMMA) {getline(is, string_value,':');return curr_tok = NAME;}
+    cerr << "ERROR\n";
+    return curr_tok = END;
   }
 }
 
@@ -71,9 +75,6 @@ node* build_tree(vector<node*>& leaves) {
   string fname;
   cin >> fname;
   ifstream is(fname.c_str());
-  //ifstream is("toy_tree_small.nwk");
-  //ifstream is("test.nwk");
-  //ifstream is("7330_leaves.nwk");
   if (!is) {
     cerr << "Could not open file\n";
     return nullptr;
@@ -115,7 +116,7 @@ node* build_tree(vector<node*>& leaves) {
       cur_node->rtree->backlink = cur_node;
       cur_node = cur_node->rtree;
       break;
-    case NORMAL:case END:
+    case END:
       cout << "error";
     }
   }
@@ -256,6 +257,7 @@ int main() {
   cin >> gamma;
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma << endl;
   //start timer
+
   clock_t tm=clock();
   select_clades(root);
   root->selected = true;
@@ -337,4 +339,5 @@ int main() {
     cout << endl;
   }
   show_event("total time", tm);
+
 }
