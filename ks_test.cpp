@@ -13,11 +13,11 @@ using namespace std;
 #define sp << " " <<
 
 enum Token_value {
-  NORMAL,NAME,NUMBER,END,
+  NAME,NUMBER,END,
   LP='(',RP=')',COLON=':',COMMA=','
 };
 
-Token_value curr_tok=NORMAL;
+Token_value curr_tok=END;
 string string_value;
 float number_value;
 int ml;
@@ -62,7 +62,11 @@ Token_value get_token(istream& is) {
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
     return curr_tok = NAME;
   default:
-  return curr_tok = NORMAL;
+    is.putback(ch);
+    string_value.clear();
+    if (curr_tok == LP || curr_tok == COMMA) {getline(is, string_value,':');return curr_tok = NAME;}
+    cerr << "ERROR\n";
+    return curr_tok = END;
   }
 }
 
@@ -115,7 +119,7 @@ node* build_tree(vector<node*>& leaves) {
       cur_node->rtree->backlink = cur_node;
       cur_node = cur_node->rtree;
       break;
-    case NORMAL:case END:
+    case END:
       cout << "error";
     }
   }
@@ -284,15 +288,26 @@ int main() {
   preSort(root);
   nodelist sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
-  cout << sel_nodes[8]->info sp sel_nodes[9]->info << endl;
-    printLeaves(sel_nodes[8]);
+  cout << sel_nodes[0]->info sp root->info << endl;
+    printLeaves(sel_nodes[0]);
     cout << endl;
-    copy(all(sel_nodes[8]->D),ostream_iterator<float>(cout," "));
+    copy(all(sel_nodes[0]->D),ostream_iterator<float>(cout," "));
     cout << endl;
-    printLeaves(sel_nodes[9]);
+    printLeaves(root);
     cout << endl;
-    copy(all(sel_nodes[9]->D),ostream_iterator<float>(cout," "));
+    copy(all(root->D),ostream_iterator<float>(cout," "));
     cout << endl;
-    auto ks = kstwo(sel_nodes[8]->D, sel_nodes[9]->D);
+    auto ks = kstwo(sel_nodes[0]->D, root->D);
+    cout << ks.first sp ks.second << endl;
+  cout << sel_nodes[1]->info sp root->info << endl;
+    printLeaves(sel_nodes[1]);
+    cout << endl;
+    copy(all(sel_nodes[1]->D),ostream_iterator<float>(cout," "));
+    cout << endl;
+    printLeaves(root);
+    cout << endl;
+    copy(all(root->D),ostream_iterator<float>(cout," "));
+    cout << endl;
+    ks = kstwo(sel_nodes[1]->D, root->D);
     cout << ks.first sp ks.second << endl;
 }
