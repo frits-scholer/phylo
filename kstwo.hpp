@@ -43,9 +43,13 @@ The arrays data1 and data2 are modified by being sorted into ascending order.
   float d1,d2,dt,en,fn1=0.0,fn2=0.0;
   //data1 en data2 are 0-indexed
   while (j1 < data1.size() && j2 < data2.size()) {
-    if ((d1=data1[j1]) <= (d2=data2[j2])) fn1=j1++/en1;
-    if (d2 <= d1) fn2=j2++/en2;
-    if ((dt=fabs(fn2-fn1)) > d) d=dt;//the max
+    d1=data1[j1];
+    d2=data2[j2];
+    if (d1 <= d2) {j1++;fn1 = j1/en1;}
+    //if ((d1=data1[j1]) <= (d2=data2[j2])) fn1=j1++/en1;
+    if (d2 <= d1) {j2++;fn2 = j2/en2;}
+    dt=fabs(fn2-fn1);
+    if (dt > d) d = dt;//the max
   }
   en=sqrt(en1*en2/(en1+en2));
   float prob=probks((en+0.12+0.11/en)*d);

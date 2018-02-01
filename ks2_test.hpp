@@ -41,13 +41,16 @@ function of data1 is significantly different from that of data2 .
   float d1,d2,dt,en,fn1=0.0,fn2=0.0;
   //data1 en data2 are 0-indexed
   while (j1 < data1.size() && j2 < data2.size()) {
-    if ((d1=data1[j1]) <= (d2=data2[j2])) fn1=j1++/en1;
-    if (d2 <= d1) fn2=j2++/en2;
-    if ((dt=fabs(fn2-fn1)) > d) d=dt;//the max
-    cout << "j1,j2,d:" sp j1 sp j2 sp d << endl;
+    d1=data1[j1];
+    d2=data2[j2];
+    if (d1 <= d2) {j1++;fn1 = j1/en1;}
+    //if ((d1=data1[j1]) <= (d2=data2[j2])) fn1=j1++/en1;
+    if (d2 <= d1) {j2++;fn2 = j2/en2;}
+    dt=fabs(fn2-fn1);
+    if (dt > d) d = dt;//the max
+    //cout << "j1,j2,d:" sp j1 sp j2 sp d << endl;
   }
   en=sqrt(en1*en2/(en1+en2));
-  cout << "en1,en2,en,d:" sp en1 sp en2 sp en sp d << endl;
   float prob=probks((en+0.12+0.11/en)*d);
   return make_pair(d, prob);
 }

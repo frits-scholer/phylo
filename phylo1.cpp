@@ -235,8 +235,9 @@ void preSort(node *root) {
 
 void printAncestors(node *root) {
   node* z = root;
-  while (z != z->backlink) {
+  while (true) {
     z = z->backlink;
+    if (z == z->backlink) break;
     cout << z->info << " ";
   }
 }
