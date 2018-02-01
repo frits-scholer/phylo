@@ -1,4 +1,4 @@
-ยง1 Introduction
+ง1 Introduction
 
 Purpose of this document is to document different versions of the phylo C++ routines
 Current version phylo1.cpp
@@ -63,3 +63,21 @@ The leaves are also stored in a vector of node pointers
 [Calculate p values]
 [Calculate q values]
 [Print ancestors of selected nodes]	
+
+ง2 The solver
+
+maximize z = sum (ni*li) , ni are boolean variables, li are nr of subtended leaves
+subject to
+
+pi = ni + sum(nk), k != i and nk ancestor of ni,  pi <=1
+
+rij = (2 - ni - nj) * C, rij >= qij - FDR where qij are the q values and C is arbitrarily large (say 1000)
+
+(this is equivalent to if  ni=nj=1 then qij <= FDR)
+Normalizing the parameters we get:
+r'ij = rij - 2C
+     r'ij = (-C)ni + (-C)nj
+     r'ij >= qij - FDR - 2C
+r"ij = -r'ij
+     r"ij = Cni + Cnj
+     r"ij <= 2C + FDR - qij
