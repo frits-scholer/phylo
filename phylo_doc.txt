@@ -81,3 +81,11 @@ r'ij = rij - 2C
 r"ij = -r'ij
      r"ij = Cni + Cnj
      r"ij <= 2C + FDR - qij
+     
+The idea is for a first version use a slightly modified version of il1.out
+called constraints1.in as input file with a default FDR of 0.05
+layout of cluster1.cpp
+[get input]
+[normalize problem variables]
+[solve problem]
+[output solution]
