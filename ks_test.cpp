@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <cctype>
-#include "kstwo.hpp"
+#include "ks2_test.hpp"
 using namespace std;
 
 #define all(t) begin(t), end(t)
@@ -278,9 +278,9 @@ int main() {
     preOrder(m.second);//turn on selected leaves
   }
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    if (!((*il)->selected)) continue;
+    //if (!((*il)->selected)) continue;
     for (auto jl = begin(leaves);jl != il;jl++) {
-      if (!((*jl)->selected)) continue;
+      //if (!((*jl)->selected)) continue;
       process_distance2(*il,*jl);//add the interleaf distance to the selected nodes
     }
   }
@@ -291,23 +291,26 @@ int main() {
   cout << sel_nodes[0]->info sp root->info << endl;
     printLeaves(sel_nodes[0]);
     cout << endl;
-    copy(all(sel_nodes[0]->D),ostream_iterator<float>(cout," "));
-    cout << endl;
+    cout << sel_nodes[0]->D.size() << endl;
+    //    copy(all(sel_nodes[0]->D),ostream_iterator<float>(cout," "));
+    //cout << endl;
     printLeaves(root);
     cout << endl;
-    copy(all(root->D),ostream_iterator<float>(cout," "));
-    cout << endl;
+    cout << root->D.size() << endl;
+    //copy(all(root->D),ostream_iterator<float>(cout,"\n"));
+    //cout << endl;
     auto ks = kstwo(sel_nodes[0]->D, root->D);
     cout << ks.first sp ks.second << endl;
-  cout << sel_nodes[1]->info sp root->info << endl;
+    cout << sel_nodes[1]->info sp root->info << endl;
     printLeaves(sel_nodes[1]);
     cout << endl;
-    copy(all(sel_nodes[1]->D),ostream_iterator<float>(cout," "));
-    cout << endl;
+    cout << sel_nodes[1]->D.size() << endl;
+    //copy(all(sel_nodes[1]->D),ostream_iterator<float>(cout," "));
+    //cout << endl;
     printLeaves(root);
     cout << endl;
-    copy(all(root->D),ostream_iterator<float>(cout," "));
-    cout << endl;
+    //copy(all(root->D),ostream_iterator<float>(cout," "));
+    //cout << endl;
     ks = kstwo(sel_nodes[1]->D, root->D);
-    cout << ks.first sp ks.second << endl;
+    cout << "D,p:" sp ks.first sp ks.second << endl;
 }

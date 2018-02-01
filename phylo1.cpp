@@ -291,10 +291,8 @@ int main() {
     preOrder(m.second);//turn on selected leaves
   }
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    if (!((*il)->selected)) continue;
     for (auto jl = begin(leaves);jl != il;jl++) {
-      if (!((*jl)->selected)) continue;
-      process_distance2(*il,*jl);//add the interleaf distance to the selected nodes
+      process_distance2(*il,*jl);//add the interleaf distances
     }
   }
   //presort all data
