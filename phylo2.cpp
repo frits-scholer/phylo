@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <cctype>
+#include <map>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
 using namespace std;
@@ -23,6 +24,7 @@ float number_value;
 int ml;
 
 typedef vector<float> distribution;
+map<string,int> node_indx;
 
 struct node {
   node* ltree;
@@ -238,7 +240,7 @@ void printAncestors(node *root) {
   while (true) {
     z = z->backlink;
     if (z == z->backlink) break;
-    if (z->selected) cout << z->info << " ";
+    if (z->selected) cout << node_indx[z->info] << " ";
   }
 }
 
@@ -301,16 +303,17 @@ int main() {
   preSort(root);
   nodelist sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
+  int indx{1};
   for (auto n: sel_nodes) {
     cout << 'n' << n->info << " ";
+    node_indx[n->info] = indx;indx++;
     int lv{0};
     printLeaves(n, lv);
     cout << lv << endl;
   }
-
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printAncestors(n);
+  for (unsigned int i = 0;i < sel_nodes.size();i++) {
+    cout << i+1 << ": ";
+    printAncestors(sel_nodes[i]);
     cout << endl;
   }
 
@@ -335,7 +338,7 @@ int main() {
   auto itq = begin(q);
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
+      cout << i+1 sp j+1 << '\t' << *itq << endl;
       itq++;
     }
   }
