@@ -171,19 +171,6 @@ void calc_mean(node *root, vector<node_mean>& v) {
   if (root->rtree) calc_mean(root->rtree, v);
 }
 
-void clear(node *root) {
-  if (root->ltree) clear(root->ltree);
-  if (root->isleaf || root->selected)
-    root->selected = false;
-  if (root->rtree) clear(root->rtree);
-}
-
-void preOrder(node *root) {
-  if (root->ltree) preOrder(root->ltree);
-  if (root->rtree) preOrder(root->rtree);
-  if (root->isleaf) root->selected = true;
-}
-
 void printLeaves(node *root) {
   if (root->ltree) printLeaves(root->ltree);
   if (root->rtree) printLeaves(root->rtree);
@@ -268,11 +255,6 @@ int main() {
   it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
   cout << "size of filtered means = " << means.size() << endl;
-  clear(root);//turn off the whole tree
-  for (auto m: means) {
-    m.second->selected = true;//turn on selected nodes
-    preOrder(m.second);//turn on selected leaves
-  }
   //presort all data
   preSort(root);
   nodelist sel_nodes;
