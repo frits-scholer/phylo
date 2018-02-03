@@ -94,3 +94,8 @@ layout of cluster1.cpp
 §3 Get input
 
 [Get object coefficients]
+
+§4 Version 2
+
+program phylo1_v2.cpp
+first let's calc the interleaf distances better
