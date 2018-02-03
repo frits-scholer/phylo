@@ -26,13 +26,13 @@ The leaves are also stored in a vector of node pointers
 	select_clades(root) calculates recursively for all nodes nr of subtended leaves
 	and sets select to true if this nr is >= ml (that is why ml is global)
 	(uses post order traversal)
-[Set up interleaf distances]	
-	Calc for clades with at least min nr of leaves (i.e. select = true)
+[Store interleaf distances]
+        for all selected leaves store the interleaf distance in the common ancestor and
+	all its ancestors. Each of these ancestors has a vector called D (distribution of
+	distances)
 	process_distance is called for all pairs of leaves:
 	if the common ancestor has selected = false go to the parent until a common ancestor
 	with selected = true is reached then for this node and all parents increment the nodes
-	count (how many pairs) and increment the interleaf total distance with
-	the pair interleaf distance
 	Then to calculate the mean of interleaf distances call inOrder(root)
 	to store a mean and a node pointer in a pair called node_mean for all nodes
 	for which selected = true
@@ -49,10 +49,6 @@ The leaves are also stored in a vector of node pointers
 	other elements are erased from vector means
 	set selected = true for all elements of vector means
 	call preOrder(root) to turn set selected = true for all subtended leaves
-[Store interleaf distances]
-        for all selected leaves store the interleaf distance in the common ancestor and
-	all its ancestors. Each of these ancestors has a vector called D (distribution of
-	distances)
 [Presort the distributions]
 	call preSort(root) to recursively sort all the distribution vectors of the internal nodes
 	
@@ -98,4 +94,5 @@ layout of cluster1.cpp
 §4 Version 2
 
 program phylo1_v2.cpp
-first let's calc the interleaf distances better
+first let's calc the interleaf distances better done with calc_mean
+documentation and phylo1.cpp are updated

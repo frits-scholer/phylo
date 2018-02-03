@@ -165,28 +165,13 @@ float distance(node* x, node* y) {//y occurs before x
   return ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
-void process_distance(node* x, node* y) {//y occurs before x
-  node* z = common_ancestor(x, y);
-  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {//skip small clades
-    if (z->selected) break;
-    if (z == z->backlink) break;//root is always selected
-    z = z->backlink;
+void calc_mean(node *root, vector<node_mean>& v) {
+  if (root->ltree) calc_mean(root->ltree, v);
+  if (!(root->isleaf) && root->selected) {
+    float S = accumulate(all(root->D),0.0);
+    v.push_back(node_mean(S/(root->D).size(), root));
   }
-  //from here on up all clades are selected
-  while (true) {//
-    z->sum_ild += ild;
-    z->count_ild++;
-    if (z == z->backlink) break;//root is always selected
-    z = z->backlink;
-  }
-}
-
-void inOrder(node *root, vector<node_mean>& v) {
-  if (root->ltree) inOrder(root->ltree, v);
-  if (!(root->isleaf) && root->selected)
-      v.push_back(node_mean(root->sum_ild/root->count_ild, root));
-  if (root->rtree) inOrder(root->rtree, v);
+  if (root->rtree) calc_mean(root->rtree, v);
 }
 
 void clear(node *root) {
@@ -208,7 +193,7 @@ void printLeaves(node *root) {
   if (root->isleaf) cout << root->info << ' ';
 }
 
-void process_distance2(node* x, node* y) {
+void process_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
   float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
   while (true) {
@@ -269,7 +254,7 @@ int main() {
     }
   }
   vector<node_mean> means;
-  inOrder(root, means);
+  calc_mean(root, means);
   sort(all(means));
   size_t msize = means.size();
   float gm;
@@ -290,13 +275,6 @@ int main() {
   for (auto m: means) {
     m.second->selected = true;//turn on selected nodes
     preOrder(m.second);//turn on selected leaves
-  }
-  for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    //if (!((*il)->selected)) continue;
-    for (auto jl = begin(leaves);jl != il;jl++) {
-      //if (!((*jl)->selected)) continue;
-      process_distance2(*il,*jl);//add the interleaf distances
-    }
   }
   //presort all data
   preSort(root);
