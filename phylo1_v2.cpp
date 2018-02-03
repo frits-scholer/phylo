@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stack>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include <string>
 #include <cctype>
@@ -21,8 +22,9 @@ Token_value curr_tok=END;
 string string_value;
 float number_value;
 int ml;
-
-typedef vector<float> distribution;
+struct node;
+typedef pair<node*,node*> node_pair;
+typedef vector<pair<float,node_pair>> distribution;
 
 struct node {
   node* ltree;
@@ -32,7 +34,8 @@ struct node {
   string info;
   bool selected;
   bool isleaf;
-  vector<float> D;//needed for KS
+  distribution D;//needed for KS
+  vector<float> DV;//distribution values
   node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
 };
 
@@ -157,16 +160,24 @@ node* common_ancestor(node* x, node* y) {
   return z;
 }
 
-float distance(node* x, node* y) {//y occurs before x
+void process_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
-  return ancestor_distance(z, x) + ancestor_distance(z, y);
+  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  while (true) {
+    z->D.push_back(make_pair(ild, node_pair(x, y)));//generate D
+    z->DV.push_back(ild);
+    if (z == z->backlink) return;
+    z = z->backlink;
+  }
 }
 
 void calc_mean(node *root, vector<node_mean>& v) {
   if (root->ltree) calc_mean(root->ltree, v);
   if (!(root->isleaf) && root->selected) {
-    float S = accumulate(all(root->D),0.0);
-    v.push_back(node_mean(S/(root->D).size(), root));
+    //float S = accumulate(all(root->D),0.0,[](float x, pair<float,node_pair> y){
+    //return x + y.first;});
+    float S = accumulate(all(root->DV),0.0);
+    v.push_back(node_mean(S/(root->DV).size(), root));
   }
   if (root->rtree) calc_mean(root->rtree, v);
 }
@@ -175,16 +186,6 @@ void printLeaves(node *root) {
   if (root->ltree) printLeaves(root->ltree);
   if (root->rtree) printLeaves(root->rtree);
   if (root->isleaf) cout << root->info << ' ';
-}
-
-void process_distance(node* x, node* y) {
-  node* z = common_ancestor(x, y);
-  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {
-    z->D.push_back(ild);//generate D even if internal node is not selected
-    if (z == z->backlink) return;
-    z = z->backlink;
-  }
 }
 
 bool is_ancestor(node* x, node* y) {//x is ancestor of y
@@ -199,7 +200,7 @@ bool is_ancestor(node* x, node* y) {//x is ancestor of y
 void preSort(node *root) {
   if (root->ltree) preSort(root->ltree);
   if (root->rtree) preSort(root->rtree);
-  if (!(root->isleaf)) sort(all(root->D));
+  if (!(root->isleaf)) sort(all(root->DV));
 }
 
 void printAncestors(node *root) {
@@ -208,6 +209,25 @@ void printAncestors(node *root) {
     z = z->backlink;
     if (z == z->backlink) break;
     cout << z->info << " ";
+  }
+}
+
+void sackLeaves(node *root, set<node*>& S) {
+  if (root->ltree) sackLeaves(root->ltree, S);
+  if (root->rtree) sackLeaves(root->rtree, S);
+  if (root->isleaf) S.insert(root);
+}
+
+void combine(node* ni, node* nj, node* ca,
+	     vector<float>& dv) {
+  //make a set of leaves from ni and nj
+  set<node*> cl;
+  sackLeaves(ni, cl);
+  sackLeaves(nj, cl);
+  for (auto fnp : ca->D) {
+    if (cl.find(fnp.second.first) == cl.end() ||
+    	cl.find(fnp.second.second) == cl.end()) continue;
+    dv.push_back(fnp.first);
   }
 }
 
@@ -264,19 +284,24 @@ int main() {
     printLeaves(n);
     cout << endl;
   }
-
   vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
       //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-      if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
-	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
+      if (is_ancestor(sel_nodes[i], sel_nodes[j])
+	  || is_ancestor(sel_nodes[j], sel_nodes[i])) {
+	auto ks = kstwo(sel_nodes[i]->DV, sel_nodes[j]->DV);
 	p.push_back(ks.second);
-	}
+      }
       else {
 	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
-	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	vector<float> ca_dv;
+	combine(sel_nodes[i], sel_nodes[j], ca, ca_dv);
+	sort(all(ca_dv));
+	auto ksi = kstwo(sel_nodes[i]->DV, ca_dv);
+	auto ksj = kstwo(sel_nodes[j]->DV, ca_dv);
+	//auto ksi = kstwo(sel_nodes[i]->DV, ca->DV);
+	//auto ksj = kstwo(sel_nodes[j]->DV, ca->DV);
 	p.push_back(max(ksi.second, ksj.second));
       }
     }
@@ -290,12 +315,10 @@ int main() {
       itq++;
     }
   }
-
   for (auto n: sel_nodes) {
     cout << n->info << ": ";
     printAncestors(n);
     cout << endl;
   }
   show_event("total time", tm);
-
 }
