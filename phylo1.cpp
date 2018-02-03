@@ -32,11 +32,8 @@ struct node {
   string info;
   bool selected;
   bool isleaf;
-  float sum_ild;//current sum of interleaf distances
-  int count_ild;
   vector<float> D;//needed for KS
-  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false),
-	  sum_ild(0.0), count_ild(0){}
+  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
 };
 
 typedef pair<float, node*> node_mean;
