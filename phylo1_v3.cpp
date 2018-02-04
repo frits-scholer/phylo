@@ -259,30 +259,39 @@ int main() {
     printLeaves(n);
     cout << endl;
   }
-
+  vector<bool> sel;
   vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
+      sel.push_back(false);
       //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
       if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p.push_back(ks.second);
+	sel.back()=true;
 	}
       else {
-	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
+	node* ca = sel_nodes[i]->backlink;
+	if (ca != sel_nodes[j]->backlink) continue; 
+	//node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
 	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	p.push_back(max(ksi.second, ksj.second));
+	sel.back()=true;
       }
     }
   }
   vector<float> q(p.size());
   bh_fdr(p,q);
   auto itq = begin(q);
+  auto isel = begin(sel);
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
-      itq++;
+      if (*isel) {
+	cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
+	itq++;
+      }
+      isel++;
     }
   }
 
