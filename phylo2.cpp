@@ -34,11 +34,8 @@ struct node {
   string info;
   bool selected;
   bool isleaf;
-  float sum_ild;//current sum of interleaf distances
-  int count_ild;
   vector<float> D;//needed for KS
-  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false),
-	  sum_ild(0.0), count_ild(0){}
+  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
 };
 
 typedef pair<float, node*> node_mean;
@@ -162,55 +159,7 @@ node* common_ancestor(node* x, node* y) {
   return z;
 }
 
-float distance(node* x, node* y) {//y occurs before x
-  node* z = common_ancestor(x, y);
-  return ancestor_distance(z, x) + ancestor_distance(z, y);
-}
-
-void process_distance(node* x, node* y) {//y occurs before x
-  node* z = common_ancestor(x, y);
-  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {//skip small clades
-    if (z->selected) break;
-    if (z == z->backlink) break;//root is always selected
-    z = z->backlink;
-  }
-  //from here on up all clades are selected
-  while (true) {//
-    z->sum_ild += ild;
-    z->count_ild++;
-    if (z == z->backlink) break;//root is always selected
-    z = z->backlink;
-  }
-}
-
-void inOrder(node *root, vector<node_mean>& v) {
-  if (root->ltree) inOrder(root->ltree, v);
-  if (!(root->isleaf) && root->selected)
-      v.push_back(node_mean(root->sum_ild/root->count_ild, root));
-  if (root->rtree) inOrder(root->rtree, v);
-}
-
-void clear(node *root) {
-  if (root->ltree) clear(root->ltree);
-  if (root->isleaf || root->selected)
-    root->selected = false;
-  if (root->rtree) clear(root->rtree);
-}
-
-void preOrder(node *root) {
-  if (root->ltree) preOrder(root->ltree);
-  if (root->rtree) preOrder(root->rtree);
-  if (root->isleaf) root->selected = true;
-}
-
-void printLeaves(node *root, int& lv) {
-  if (root->ltree) printLeaves(root->ltree, lv);
-  if (root->rtree) printLeaves(root->rtree, lv);
-  if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
-}
-
-void process_distance2(node* x, node* y) {
+void process_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
   float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
   while (true) {
@@ -218,6 +167,21 @@ void process_distance2(node* x, node* y) {
     if (z == z->backlink) return;
     z = z->backlink;
   }
+}
+
+void calc_mean(node *root, vector<node_mean>& v) {
+  if (root->ltree) calc_mean(root->ltree, v);
+  if (!(root->isleaf) && root->selected) {
+    float S = accumulate(all(root->D),0.0);
+    v.push_back(node_mean(S/(root->D).size(), root));
+  }
+  if (root->rtree) calc_mean(root->rtree, v);
+}
+
+void printLeaves(node *root, int& lv) {
+  if (root->ltree) printLeaves(root->ltree, lv);
+  if (root->rtree) printLeaves(root->rtree, lv);
+  if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
 }
 
 bool is_ancestor(node* x, node* y) {//x is ancestor of y
@@ -240,7 +204,7 @@ void printAncestors(node *root) {
   while (true) {
     z = z->backlink;
     if (z == z->backlink) break;
-    if (z->selected) cout << node_indx[z->info] << " ";
+    if (node_indx[z->info]) cout << node_indx[z->info] << " ";
   }
 }
 
@@ -271,7 +235,7 @@ int main() {
     }
   }
   vector<node_mean> means;
-  inOrder(root, means);
+  calc_mean(root, means);
   sort(all(means));
   size_t msize = means.size();
   float gm;
@@ -289,16 +253,6 @@ int main() {
   means.erase(it, end(means));
   //cout << "size of filtered means = " << means.size() << endl;
   cout << means.size() << endl;
-  clear(root);//turn off the whole tree
-  for (auto m: means) {
-    m.second->selected = true;//turn on selected nodes
-    preOrder(m.second);//turn on selected leaves
-  }
-  for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    for (auto jl = begin(leaves);jl != il;jl++) {
-      process_distance2(*il,*jl);//add the interleaf distances
-    }
-  }
   //presort all data
   preSort(root);
   nodelist sel_nodes;
@@ -343,5 +297,4 @@ int main() {
     }
   }
   show_event("total time", tm);
-
 }

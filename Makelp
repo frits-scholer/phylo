@@ -1,0 +1,7 @@
+COMPILER_OPTIONS := -g -Wall
+CXXFLAGS := -std=c++11 $(COMPILER_OPTIONS)
+LDLIBS := -lglpk -lm
+objects = cluster1
+all : $(objects) 
+clean :
+	rm cluster1
