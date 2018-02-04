@@ -96,9 +96,13 @@ layout of cluster1.cpp
 program phylo1_v2.cpp
 first let's calc the interleaf distances better done with calc_mean
 documentation and phylo1.cpp are updated
-for edyth.cpp:
+for edyth.nwk, input file il3.in
 Minimum nr of leaves: 3 Gamma:  3
+Output:
 size of means =  3059 grand median = 0.00553652
 mad = 0.00430358
 size of filtered means = 2786
 output in 4937.32 seconds
+program phylo1_v3.cpp
+only compares nodes with common parents(siblings) if not ancestral
+really fast
