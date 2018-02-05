@@ -12,9 +12,11 @@ using namespace std;
 #define all(t) begin(t), end(t)
 #define sp << " " <<
 const unsigned int MAX_COEFF_NR = 500000;
+const float FDR = 0.05;
+const int C = 1000;
 
 int main() {
-  ifstream is("constraints1.in");
+  ifstream is("constraints2.in");
   if (!is) {
     cerr << "Could not open file\n";
     return 1;
@@ -44,7 +46,7 @@ int main() {
     int cur_node;
     is >> cur_node;
     ia[indx]=i;ja[indx]=cur_node;ar[indx]=1;indx++;
-    cout << cur_node << ": ";
+    //cout << cur_node << ": ";
     char ch;
     is.get(ch);//:
     string s;
@@ -54,9 +56,23 @@ int main() {
       iss >> cur_node;
       if (!iss) break;
       ia[indx]=i;ja[indx]=cur_node;ar[indx]=1;indx++;
-      cout << cur_node << " ";
+      //cout << cur_node << " ";
     }
-    cout << endl;
+    //cout << endl;
+  }
+  int row_n = N + 1;
+  while (true) {
+    int cur_node1, cur_node2;
+    float qij;
+    is >> cur_node1;
+    if (!is) break;
+    is >> cur_node2 >> qij;
+    glp_add_rows(mip, 1);//add constraint row
+    glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + FDR - qij);
+    ia[indx]=row_n;ja[indx]=cur_node1;ar[indx]=C;indx++;
+    ia[indx]=row_n;ja[indx]=cur_node2;ar[indx]=C;indx++;
+    row_n++;
+    //cout << cur_node1 sp cur_node2 sp qij << endl;
   }
   is.close();
   glp_load_matrix(mip, indx-1, ia, ja, ar);
@@ -67,7 +83,7 @@ int main() {
   cout << err << endl;
   cout << "Object value: " << glp_mip_obj_val(mip) << endl;
   for (int i=1;i<=N;i++) {
-    cout << glp_get_col_name(mip, i) << " = " << glp_mip_col_val(mip, i) << endl;
+    if (glp_mip_col_val(mip, i) == 1 ) cout << glp_get_col_name(mip, i) << endl;
   }
   glp_delete_prob(mip);
 }
