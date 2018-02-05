@@ -259,6 +259,12 @@ int main() {
     printLeaves(n);
     cout << endl;
   }
+  ostream_iterator<float> os(cout, " ");
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    copy(all(n->D),os);
+    cout << endl;
+  }
   vector<bool> sel;
   vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
@@ -281,6 +287,7 @@ int main() {
       }
     }
   }
+  cerr << p.size() << endl;
   vector<float> q(p.size());
   bh_fdr(p,q);
   auto itq = begin(q);

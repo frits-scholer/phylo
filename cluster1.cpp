@@ -11,6 +11,7 @@ using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
+const unsigned int MAX_COEFF_NR = 500000;
 
 int main() {
   ifstream is("constraints1.in");
@@ -18,8 +19,6 @@ int main() {
     cerr << "Could not open file\n";
     return 1;
   }
-
-
   int N;
   is >> N;
   glp_prob *mip = glp_create_prob();
@@ -36,8 +35,8 @@ int main() {
     glp_set_col_kind(mip, i, GLP_BV);
     glp_set_obj_coef(mip, i, l);
   }
-  int ia[1+N*N], ja[1+N*N];
-  double ar[1+N*N];
+  int ia[1+MAX_COEFF_NR], ja[1+MAX_COEFF_NR];
+  double ar[1+MAX_COEFF_NR];
   glp_add_rows(mip, N);
   long indx{1};
   for (int i=1;i<=N;i++) {
@@ -65,6 +64,7 @@ int main() {
   glp_init_iocp(&parm);
   parm.presolve = GLP_ON;
   int err = glp_intopt(mip, &parm);
+  cout << err << endl;
   cout << "Object value: " << glp_mip_obj_val(mip) << endl;
   for (int i=1;i<=N;i++) {
     cout << glp_get_col_name(mip, i) << " = " << glp_mip_col_val(mip, i) << endl;
