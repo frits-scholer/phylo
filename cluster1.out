@@ -1,0 +1,43 @@
+1: 
+2: 
+3: 1 
+4: 3 1 
+5: 4 3 1 
+6: 5 4 3 1 
+7: 6 5 4 3 1 
+8: 7 6 5 4 3 1 
+9: 8 7 6 5 4 3 1 
+10: 9 8 7 6 5 4 3 1 
+GLPK Integer Optimizer, v4.57
+10 rows, 10 columns, 46 non-zeros
+10 integer variables, all of which are binary
+Preprocessing...
+8 rows, 9 columns, 44 non-zeros
+9 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 8
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.57
+8 rows, 9 columns, 44 non-zeros
+*     0: obj =   3.000000000e+00 inf =   0.000e+00 (9)
+*     9: obj =   1.600000000e+01 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++     9: mip =     not found yet <=              +inf        (1; 0)
++     9: >>>>>   1.600000000e+01 <=   1.600000000e+01   0.0% (1; 0)
++     9: mip =   1.600000000e+01 <=     tree is empty   0.0% (0; 1)
+INTEGER OPTIMAL SOLUTION FOUND
+Object value: 16
+n4 = 1
+n2 = 1
+n6 = 0
+n7 = 0
+n9 = 0
+n10 = 0
+n11 = 0
+n12 = 0
+n13 = 0
+n14 = 0
