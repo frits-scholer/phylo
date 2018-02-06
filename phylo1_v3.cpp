@@ -166,6 +166,10 @@ void process_distance(node* x, node* y) {
     z = z->backlink;
   }
 }
+float calc_distance(node* x, node* y) {
+  node* z = common_ancestor(x, y);
+  return  ancestor_distance(z, x) + ancestor_distance(z, y);
+}
 
 void calc_mean(node *root, vector<node_mean>& v) {
   if (root->ltree) calc_mean(root->ltree, v);
@@ -306,6 +310,12 @@ int main() {
     cout << n->info << ": ";
     printAncestors(n);
     cout << endl;
+  }
+  for (unsigned int i = 1;i < sel_nodes.size();i++) {
+    for (unsigned int j = 0;j < i;j++) {
+      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t'
+	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
+    }
   }
   show_event("total time", tm);
 
