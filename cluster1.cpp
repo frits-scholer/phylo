@@ -11,7 +11,7 @@ using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
-const unsigned int MAX_COEFF_NR = 500000;
+const unsigned int MAX_COEFF_NR = 10000000;
 const float FDR = 0.05;
 const int C = 1000;
 
@@ -37,8 +37,9 @@ int main() {
     glp_set_col_kind(mip, i, GLP_BV);
     glp_set_obj_coef(mip, i, l);
   }
-  int ia[1+MAX_COEFF_NR], ja[1+MAX_COEFF_NR];
-  double ar[1+MAX_COEFF_NR];
+  int *ia = new int [1+MAX_COEFF_NR];
+  int *ja = new int [1+MAX_COEFF_NR];
+  double *ar = new double [1+MAX_COEFF_NR];
   glp_add_rows(mip, N);
   long indx{1};
   for (int i=1;i<=N;i++) {
@@ -86,4 +87,7 @@ int main() {
     if (glp_mip_col_val(mip, i) == 1 ) cout << glp_get_col_name(mip, i) << endl;
   }
   glp_delete_prob(mip);
+  delete[] ia;
+  delete[] ja;
+  delete[] ar;
 }

@@ -8,10 +8,13 @@
 #include <map>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
+#include "glpk.h"
 using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
+const unsigned int MAX_COEFF_NR = 10000000;
+const int C = 1000;
 
 enum Token_value {
   NAME,NUMBER,END,
@@ -168,6 +171,10 @@ void process_distance(node* x, node* y) {
     z = z->backlink;
   }
 }
+float calc_distance(node* x, node* y) {
+  node* z = common_ancestor(x, y);
+  return  ancestor_distance(z, x) + ancestor_distance(z, y);
+}
 
 void calc_mean(node *root, vector<node_mean>& v) {
   if (root->ltree) calc_mean(root->ltree, v);
@@ -178,9 +185,15 @@ void calc_mean(node *root, vector<node_mean>& v) {
   if (root->rtree) calc_mean(root->rtree, v);
 }
 
-void printLeaves(node *root, int& lv) {
-  if (root->ltree) printLeaves(root->ltree, lv);
-  if (root->rtree) printLeaves(root->rtree, lv);
+void printLeaves(node *root) {
+  if (root->ltree) printLeaves(root->ltree);
+  if (root->rtree) printLeaves(root->rtree);
+  if (root->isleaf) cout << root->info << '\n';
+}
+
+void nrLeaves(node *root, int& lv) {
+  if (root->ltree) nrLeaves(root->ltree, lv);
+  if (root->rtree) nrLeaves(root->rtree, lv);
   if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
 }
 
@@ -199,12 +212,26 @@ void preSort(node *root) {
   if (!(root->isleaf)) sort(all(root->D));
 }
 
-void printIndexAncestors(node *root) {
+void printAncestors(node *root) {
   node* z = root;
   while (true) {
     z = z->backlink;
     if (z == z->backlink) break;
-    if (node_indx[z->info]) cout << node_indx[z->info] << " ";
+    cout << z->info << " ";
+  }
+}
+
+void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx) {
+  node* z = root;
+  while (true) {
+    z = z->backlink;
+    if (z == z->backlink) break;
+    if (node_indx[z->info]) {
+      ia[indx]=i;
+      ja[indx] = node_indx[z->info];
+      ar[indx]=1;
+      indx++;
+    }
   }
 }
 
@@ -222,9 +249,11 @@ int main() {
   cin >> ml;
   cerr << "Gamma factor?\n";
   cin >> gamma;
-  //cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma << endl;
+  float FDR;
+  cerr << "FDR (False Discovery Rate)?\n";
+  cin >> FDR;
+  cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
-
   clock_t tm=clock();
   select_clades(root);
   root->selected = true;
@@ -241,60 +270,135 @@ int main() {
   float gm;
   if (msize & 1) gm = means[msize/2].first;
   else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
-  //cout << "size of means = " sp msize sp "grand median = " << gm << endl;
   auto it = lower_bound(all(means),node_mean(gm,nullptr));
   msize = distance(it, end(means));
   float mad;
   if (msize & 1) mad = (it + msize/2)->first - gm;
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
-  //cout << "mad = " << mad << endl;
   float upperbound = gm + gamma * mad;
   it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
-  //cout << "size of filtered means = " << means.size() << endl;
-  cout << means.size() << endl;
   //presort all data
   preSort(root);
   nodelist sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
-  int indx{1};
-  for (auto n: sel_nodes) {
-    cout << 'n' << n->info << " ";
-    node_indx[n->info] = indx;indx++;
-    int lv{0};
-    printLeaves(n, lv);
-    cout << lv << endl;
-  }
-  for (unsigned int i = 0;i < sel_nodes.size();i++) {
-    cout << i+1 << ": ";
-    printIndexAncestors(sel_nodes[i]);
-    cout << endl;
-  }
-
+  vector<bool> sel;
   vector<float> p;
-  for (unsigned int i = 1;i < sel_nodes.size();i++) {
-    for (unsigned int j = 0;j < i;j++) {
+  int N = sel_nodes.size();  
+
+  for (int i = 1;i < N;i++) {
+    for (int j = 0;j < i;j++) {
+      sel.push_back(false);
       //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
       if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p.push_back(ks.second);
+	sel.back()=true;
 	}
       else {
-	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
+	node* ca = sel_nodes[i]->backlink;
+	if (ca != sel_nodes[j]->backlink) continue; 
+	//node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
 	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	p.push_back(max(ksi.second, ksj.second));
+	sel.back()=true;
       }
     }
   }
+  //cerr << p.size() << endl;
   vector<float> q(p.size());
   bh_fdr(p,q);
-  auto itq = begin(q);
-  for (unsigned int i = 1;i < sel_nodes.size();i++) {
+  //auxiliary output
+  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
+  cout << "mad = " << mad << endl;
+  cout << "size of filtered means = " << means.size() << endl;
+  /*
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printAncestors(n);
+    cout << endl;
+  }
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    printLeaves(n);
+    cout << endl;
+  }
+  ostream_iterator<float> os(cout, " ");
+  for (auto n: sel_nodes) {
+    cout << n->info << ": ";
+    copy(all(n->D),os);
+    cout << endl;
+  }
+  for (unsigned int i = 1;i < N;i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << i+1 sp j+1 << '\t' << *itq << endl;
-      itq++;
+      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t'
+	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
     }
   }
+  */
+  //start clustering
+  glp_prob *mip = glp_create_prob();
+  glp_set_prob_name(mip, "cluster");
+  glp_set_obj_dir(mip, GLP_MAX);
+  glp_add_cols(mip, N);
+  long indx{1};
+  //set object
+  for (int i=1;i<=N;i++) {
+    node_indx[sel_nodes[i-1]->info] = indx;indx++;
+    int lv{0};
+    nrLeaves(sel_nodes[i-1], lv);
+    glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
+    glp_set_col_kind(mip, i, GLP_BV);
+    glp_set_obj_coef(mip, i, lv);
+  }
+  int *ia = new int [1+MAX_COEFF_NR];
+  int *ja = new int [1+MAX_COEFF_NR];
+  double *ar = new double [1+MAX_COEFF_NR];
+  glp_add_rows(mip, N);
+  indx = 1;
+  for (int i=1;i<=N;i++) {
+    glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
+    ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
+    IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
+    }
+
+  auto itq = begin(q);
+  auto isel = begin(sel);
+  int row_n = N + 1;
+  for (int i = 1;i < N;i++) {
+    for (int j = 0;j < i;j++) {
+      if (*isel) {
+	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
+	glp_add_rows(mip, 1);//add constraint row
+	glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + FDR - *itq);
+	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
+	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
+	row_n++;
+	itq++;
+      }
+      isel++;
+    }
+  }
+
+  glp_load_matrix(mip, indx-1, ia, ja, ar);
+  glp_iocp parm;
+  glp_init_iocp(&parm);
+  parm.presolve = GLP_ON;
+  int err = glp_intopt(mip, &parm);
+  cout << "Return value (should be 0): " << err << endl;
+  cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
+  for (int i=1;i<=N;i++) {
+    if (glp_mip_col_val(mip, i) == 1 ) {
+      cout << glp_get_col_name(mip, i) sp ":" << endl;
+      printLeaves(sel_nodes[i-1]);
+      cout << endl;
+    }
+  }
+  glp_delete_prob(mip);
+  delete[] ia;
+  delete[] ja;
+  delete[] ar;
   show_event("total time", tm);
+
 }
