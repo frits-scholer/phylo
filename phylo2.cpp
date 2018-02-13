@@ -64,7 +64,8 @@ Token_value get_token(istream& is) {
     is.putback(ch);
     string_value.clear();
     if (curr_tok == LP || curr_tok == COMMA) {getline(is, string_value,':');return curr_tok = NAME;}
-    cerr << "ERROR\n";
+	getline(is, string_value,':');
+    cerr << string_value sp ch << " ERROR\n";
     return curr_tok = END;
   }
 }
@@ -226,6 +227,8 @@ int main() {
   //start timer
 
   clock_t tm=clock();
+  cout << leaves.size() << endl;
+/*
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
@@ -270,7 +273,6 @@ int main() {
     printIndexAncestors(sel_nodes[i]);
     cout << endl;
   }
-
   vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
@@ -296,5 +298,6 @@ int main() {
       itq++;
     }
   }
+  */
   show_event("total time", tm);
 }
