@@ -17,7 +17,7 @@ const unsigned int MAX_COEFF_NR = 10000000;
 const int C = 1000;
 
 enum Token_value {
-  NAME,NUMBER,END,
+  NAME,END,
   LP='(',RP=')',COLON=':',COMMA=','
 };
 
@@ -50,15 +50,13 @@ Token_value get_token(istream& is) {
     if (!is.get(ch)) return curr_tok = END;
   }  while (ch !=';' && isspace(ch));
   switch(ch) {
-  case '(':case ')':case ':':case ',':
+  case '(':case ')':case ',':
     return curr_tok = Token_value(ch);
   case ';':
-    return curr_tok = END;      
-  case '0':case '1':case '2':case '3':case '4':case '5':case '6':
-    case '7':case '8':case '9':
-    is.putback(ch);
+    return curr_tok = END;
+  case ':':    
     is >> number_value;
-    return curr_tok = NUMBER;
+    return curr_tok = COLON;
   case '\'':
     string_value.clear();
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
@@ -66,7 +64,10 @@ Token_value get_token(istream& is) {
   default:
     is.putback(ch);
     string_value.clear();
-    if (curr_tok == LP || curr_tok == COMMA) {getline(is, string_value,':');return curr_tok = NAME;}
+    if (curr_tok == LP || curr_tok == COMMA) {
+      getline(is, string_value,':');
+      is.putback(':');
+      return curr_tok = NAME;}
     cerr << "ERROR\n";
     return curr_tok = END;
   }
@@ -108,8 +109,6 @@ node* build_tree(vector<node*>& leaves) {
       leaves.push_back(cur_node);
       break;
     case COLON:
-      break;
-    case NUMBER:
       cur_node->distance = number_value;
       break;
     case COMMA:
