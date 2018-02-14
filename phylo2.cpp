@@ -201,7 +201,7 @@ void printIndexAncestors(node *root) {
   while (true) {
     z = z->backlink;
     if (z == z->backlink) break;
-    if (node_indx[z->info]) cout << node_indx[z->info] << " ";
+    if (node_indx[z->info]) cout << z->info << " ";
   }
 }
 
@@ -224,7 +224,7 @@ int main() {
 
   clock_t tm=clock();
   cout << leaves.size() << endl;
-  /*
+
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
@@ -256,6 +256,7 @@ int main() {
   preSort(root);
   nodelist sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
+
   int indx{1};
   for (auto n: sel_nodes) {
     cout << 'n' << n->info << " ";
@@ -264,37 +265,48 @@ int main() {
     printLeaves(n, lv);
     cout << lv << endl;
   }
-
   for (unsigned int i = 0;i < sel_nodes.size();i++) {
-    cout << i+1 << ": ";
+    cout << sel_nodes[i]->info << ": ";
     printIndexAncestors(sel_nodes[i]);
     cout << endl;
   }
+
+  vector<bool> sel;
   vector<float> p;
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
+      sel.push_back(false);
       //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
       if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p.push_back(ks.second);
+	sel.back()=true;
 	}
       else {
-	node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
+	node* ca = sel_nodes[i]->backlink;
+	if (ca != sel_nodes[j]->backlink) continue; 
+	//node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
 	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	p.push_back(max(ksi.second, ksj.second));
+	sel.back()=true;
       }
     }
   }
+
   vector<float> q(p.size());
   bh_fdr(p,q);
+  auto isel = begin(sel);
   auto itq = begin(q);
   for (unsigned int i = 1;i < sel_nodes.size();i++) {
     for (unsigned int j = 0;j < i;j++) {
-      cout << i+1 sp j+1 << '\t' << *itq << endl;
-      itq++;
+      if (*isel) {
+	if (*itq > 0.9) cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
+	itq++;
+      }
+      isel++;
     }
   }
-  */
+
   show_event("total time", tm);
 }

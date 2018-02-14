@@ -14,7 +14,7 @@ using namespace std;
 #define all(t) begin(t), end(t)
 #define sp << " " <<
 const unsigned int MAX_COEFF_NR = 10000000;
-const int C = 1000;
+const float C = 1000;
 
 enum Token_value {
   NAME,END,
@@ -243,7 +243,7 @@ int main() {
   vector<node*> leaves;
   node* root = build_tree(leaves);
   if (!root) return 1;
-  int gamma;
+  float gamma;
   cerr << "Minimum nr of leaves of considered clades?\n";
   cin >> ml;
   cerr << "Gamma factor?\n";
@@ -368,7 +368,7 @@ int main() {
   for (int i = 1;i < N;i++) {
     for (int j = 0;j < i;j++) {
       if (*isel) {
-	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq << endl;
+	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq sp 2*C + FDR - *itq << endl;
 	glp_add_rows(mip, 1);//add constraint row
 	glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + FDR - *itq);
 	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
