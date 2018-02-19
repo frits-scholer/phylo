@@ -27,7 +27,6 @@ int ml;
 typedef vector<float> distribution;
 map<string,int> node_indx;
 
-multimap<float, string, greater<float>> ordered_nodes;
 
 struct node {
   node* ltree;
@@ -40,6 +39,8 @@ struct node {
   vector<float> D;//needed for KS
   node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
 };
+
+multimap<float, pair<node*,string>, greater<float>> ordered_nodes;
 
 typedef pair<float, node*> node_mean;
 typedef vector<node*> nodelist;
@@ -188,14 +189,6 @@ void printAncestors(node *root) {
   }
 }
 
-void tree_sort1(node *root) {
-  if (root->isleaf) return;
-  if (root->ltree) tree_sort1(root->ltree);
-  if (root->rtree) tree_sort1(root->rtree);
-  if (root->ltree && root->rtree && root->ltree->distance < root->rtree->distance)
-      swap(root->ltree, root->rtree);
-}
-
 float printNodes(node* realroot, node *root) {
   float lmin{0.0}, rmin{0.0}, node_min;
   if (root->isleaf) node_min = ancestor_distance(realroot, root);
@@ -204,9 +197,10 @@ float printNodes(node* realroot, node *root) {
     lmin = printNodes(realroot, root->ltree);
     rmin = printNodes(realroot, root->rtree);
     node_min = min(lmin, rmin);
-    cout << root->info << ": " << node_min << endl;
-    ordered_nodes.insert(make_pair(node_min, root->info));
+    //cout << root->info << ": " << node_min << endl;
+    ordered_nodes.insert(make_pair(node_min, make_pair(root,root->info)));
   }
+  cout << root->info << ": " << node_min << endl;
   return node_min;
 }
 
@@ -226,16 +220,17 @@ int main() {
     //cout << leaf->info << '\t' << ancestor_distance(root, leaf) << endl;
     ordered_leaves.insert(make_pair(ancestor_distance(root, leaf), leaf->info));
   }
-  cout << "\nBranch order:\n";
+  cout << "\nLeaves in branch order:\n";
   for (auto it = ordered_leaves.begin();it != ordered_leaves.end();++it)
     cout << it->second << '\t' << it->first << endl;
   /*
   */
-  tree_sort1(root);
-  cout << "\nNodes In order:\n";
+
+  cout << "\nNodes in visiting order:\n";
   printNodes(root, root);
+  cout << "\nNodes in branch order:\n";
   for (auto it = ordered_nodes.begin();it != ordered_nodes.end();++it)
-    cout << it->second << '\t' << it->first << endl;
+    cout << it->second.second << '\t' << it->first << endl;
   //cout << "\nLeaves In order:\n";
   //printLeaves(root, root);
   show_event("total time", tm);
