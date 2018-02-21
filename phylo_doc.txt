@@ -106,3 +106,8 @@ output in 4937.32 seconds
 program phylo1_v3.cpp
 only compares nodes with common parents(siblings) if not ancestral
 really fast
+
+§5 Collapsing zero length branches
+
+when a branch is zerolength it is erased and added to the subtree of the parent
+distance is replaced too

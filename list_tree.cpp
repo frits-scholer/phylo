@@ -13,37 +13,36 @@ using namespace std;
 #define sp << " " <<
 const unsigned int MAX_COEFF_NR = 10000000;
 const float C = 1000;
+const float epsilon = 0.00001;
 
 enum Token_value {
   NAME,END,
-  LP='(',RP=')',COLON=':',COMMA=','
+  LP='(',RP=')',NUMBER=':',COMMA=','
 };
 
 Token_value curr_tok=END;
 string string_value;
 float number_value;
 int ml;
+struct node;
 
 typedef vector<float> distribution;
-//map<string,int> node_indx;
+typedef vector<node*> nodelist;
+map<string,int> node_indx;
 
 
 struct node {
-  node* ltree;
-  node* rtree;
+  nodelist subtree;
   node* backlink;
   float distance;
   string info;
   bool selected;
   bool isleaf;
-  vector<float> D;//needed for KS
-  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
+  distribution D;//needed for KS
+  node(): backlink(nullptr),isleaf(false){}
 };
 
-//multimap<float, pair<node*,string>, greater<float>> ordered_nodes;
-
 typedef pair<float, node*> node_mean;
-typedef vector<node*> nodelist;
 
 Token_value get_token(istream& is) {
   char ch;
@@ -57,7 +56,7 @@ Token_value get_token(istream& is) {
     return curr_tok = END;
   case ':':    
     is >> number_value;
-    return curr_tok = COLON;
+    return curr_tok = NUMBER;
   case '\'':
     string_value.clear();
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
@@ -74,7 +73,7 @@ Token_value get_token(istream& is) {
   }
 }
 
-node* build_tree(vector<node*>& leaves) {
+node* build_tree(nodelist& leaves) {
   cerr << "filename?\n";
   string fname;
   cin >> fname;
@@ -86,7 +85,6 @@ node* build_tree(vector<node*>& leaves) {
   node *root = new node();
   node *cur_node = root;
   root->backlink = root;
-  root->info = "ROOT";
   int internal_count = 0;
   stack<node *> A;
   while (is) {
@@ -97,9 +95,9 @@ node* build_tree(vector<node*>& leaves) {
       A.push(cur_node);
       cur_node->info = to_string(internal_count);
       internal_count++;
-      cur_node->ltree = new node();
-      cur_node->ltree->backlink = cur_node;
-      cur_node = cur_node->ltree;
+      cur_node->subtree.push_back(new node());
+      cur_node->subtree.back()->backlink = cur_node;
+      cur_node = cur_node->subtree.back();
       break;
     case RP:
       cur_node = A.top();
@@ -110,14 +108,14 @@ node* build_tree(vector<node*>& leaves) {
       cur_node->isleaf = true;
       leaves.push_back(cur_node);
       break;
-    case COLON:
+    case NUMBER:
       cur_node->distance = number_value;
       break;
     case COMMA:
       cur_node = A.top();
-      cur_node->rtree = new node();
-      cur_node->rtree->backlink = cur_node;
-      cur_node = cur_node->rtree;
+      cur_node->subtree.push_back(new node());
+      cur_node->subtree.back()->backlink = cur_node;
+      cur_node = cur_node->subtree.back();
       break;
     case END:
       cout << "error";
@@ -136,10 +134,9 @@ float ancestor_distance(node* z, node* w) {//w is descendant of z
 }
 
 bool search(node* root, node* child) {
-  if (root->ltree == child) return true;
-  if (root->rtree == child) return true;
-  if (root->ltree) return search(root->ltree, child);
-  if (root->rtree) return search(root->rtree, child);
+  if (find(all(root->subtree), child) != end(root->subtree)) return true;
+  for (auto stree: root->subtree)
+    if (stree) return search(stree, child);
   return false;
 }
 
@@ -158,8 +155,8 @@ float calc_distance(node* x, node* y) {
 }
 
 void printLeaves(node* realroot, node *root) {
-  if (root->ltree) printLeaves(realroot, root->ltree);
-  if (root->rtree) printLeaves(realroot, root->rtree);
+  for (auto stree: root->subtree)
+    if (stree) printLeaves(realroot, stree);
   if (root->isleaf) {
     float cur_dist = ancestor_distance(realroot, root);
     cout << root->info << '\t' << cur_dist << '\n';
@@ -167,8 +164,8 @@ void printLeaves(node* realroot, node *root) {
 }
 
 void nrLeaves(node *root, int& lv) {
-  if (root->ltree) nrLeaves(root->ltree, lv);
-  if (root->rtree) nrLeaves(root->rtree, lv);
+  for (auto stree: root->subtree)
+    if (stree) nrLeaves(stree, lv);
   if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
 }
 
@@ -191,9 +188,25 @@ void printAncestors(node *root) {
 }
 
 void printNodes(node *root) {
-  if (root->ltree) printNodes(root->ltree);
-  if (root->rtree) printNodes(root->rtree);
+  for (auto stree: root->subtree)
+    if (stree) printNodes(stree);
   cout << root->info << ": " << root->distance << endl;
+}
+
+void collapse(node *root) {
+  for (auto stree: root->subtree)
+    collapse(stree);
+  if (root->distance > epsilon) return;
+  
+  node * r = root->backlink;
+  if (r != r->backlink) {//take out subtree if parent is not the real root
+    r->subtree.erase(find(all(r->subtree),root));
+    //r->backlink->subtree.push_back(root);
+  }
+  //else r->subtree.push_back(root);
+  root->distance = r->distance;
+  cout << root->info sp r->info sp r->subtree.size() << endl;//if r not real root make root a sibling of r
+
 }
 
 void show_event(string s, clock_t& tm) {
@@ -202,10 +215,11 @@ void show_event(string s, clock_t& tm) {
 }
 
 int main() {
-  vector<node*> leaves;
+  nodelist leaves;
   clock_t tm=clock();
   node* root = build_tree(leaves);
   if (!root) return 1;
+  collapse(root);
   printNodes(root);
   show_event("total time", tm);
 }
