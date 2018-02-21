@@ -11,6 +11,7 @@ using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
+#define tb << "\t" <<
 const unsigned int MAX_COEFF_NR = 10000000;
 const float C = 1000;
 const float epsilon = 0.00001;
@@ -188,25 +189,52 @@ void printAncestors(node *root) {
 }
 
 void printNodes(node *root) {
+  if (!root->isleaf) cout << "node:" sp root->info
+       tb "ancestor:" sp root->backlink->info
+       tb "distance:" sp root->distance
+       tb "subtrees:" sp root->subtree.size() << endl;
+  else cout << root->info
+       tb "ancestor:" sp root->backlink->info
+	 tb "distance:" sp root->distance << endl;
   for (auto stree: root->subtree)
     if (stree) printNodes(stree);
-  cout << root->info << ": " << root->distance << endl;
+}
+
+bool is_root(node *root) {
+  return root == root->backlink;
 }
 
 void collapse(node *root) {
   for (auto stree: root->subtree)
     collapse(stree);
-  if (root->distance > epsilon) return;
-  
+  if (is_root(root)) return;
   node * r = root->backlink;
-  if (r != r->backlink) {//take out subtree if parent is not the real root
+  if (!root->isleaf && root->subtree.empty()) {
     r->subtree.erase(find(all(r->subtree),root));
-    //r->backlink->subtree.push_back(root);
+    delete root;
+    return;
   }
-  //else r->subtree.push_back(root);
-  root->distance = r->distance;
-  cout << root->info sp r->info sp r->subtree.size() << endl;//if r not real root make root a sibling of r
-
+  if (!root->isleaf && root->subtree.size()==1) {
+    auto it = find(all(r->subtree),root);
+    *it = root->subtree[0];
+    (*it)->backlink = r;
+    (*it)->distance = (*it)->distance + root->distance;
+    delete root;
+    return;
+  }
+  if (root->distance > epsilon || is_root(root)) return;
+  r->subtree.erase(find(all(r->subtree),root));
+  float rd;
+  do {
+    rd =  r->distance;
+    r = r->backlink;
+  } while (!is_root(r) && rd <= epsilon);
+  //done collapsing
+  r->subtree.push_back(new node());
+  r->subtree.back() = root;
+  root->backlink = r;
+  if (rd <= epsilon) rd = 0;
+  root->distance = rd;
 }
 
 void show_event(string s, clock_t& tm) {
