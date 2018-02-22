@@ -30,8 +30,7 @@ struct node;
 typedef vector<float> distribution;
 typedef vector<node*> nodelist;
 map<string,int> node_indx;
-nodelist treelinks(1000,nullptr);
-unsigned int cur_tl;
+
 struct node {
   nodelist subtree;
   node* backlink;
@@ -228,17 +227,19 @@ void collapse(node *root) {
   }
 
   if (root->distance > epsilon || is_root(root)) return;
-  r->subtree.erase(find(all(r->subtree),root));
+  auto it = find(all(r->subtree),root);
+  if (it == r->subtree.end()) {cerr << "unexpected " sp root->info;return;}
+  r->subtree.erase(it);
   float rd;
   do {
     rd =  r->distance;
     r = r->backlink;
-  } while (!is_root(r) && rd <= epsilon);
+    if (is_root(r)) break;
+  } while (rd <= epsilon);
   //done collapsing
-  cout << r->backlink->info << endl;
-  root->backlink = root;
-  treelinks[cur_tl] = root->backlink;
-  cur_tl++;
+  //r->subtree.push_back(root);
+  root->backlink = r;
+  cerr << r->info sp r->subtree.size() sp root->backlink->info << endl;
   if (rd <= epsilon) rd = 0;
   root->distance = rd;
 
@@ -254,19 +255,9 @@ int main() {
   clock_t tm=clock();
   node* root = build_tree(leaves);
   if (!root) return 1;
+  //printLeaves(root, root);
+  //printNodes(root);
   collapse(root);
   cout << "*\n";
-
-  for (unsigned int tl=0;tl<cur_tl;tl++) {
-    cout << treelinks[tl]->backlink->info << endl;
-    //tl.first->subtree.push_back(tl.second);
-  }
-
-  //printNodes(root);
-  //cout << endl << endl;
-  /*
-  for (auto stree: root->subtree)
-    cout << stree->info << endl;
-  */
   show_event("total time", tm);
 }
