@@ -207,7 +207,7 @@ bool is_root(node *root) {
 void collapse(node *root) {
   for (auto stree: root->subtree)
     collapse(stree);
-  if (is_root(root)) return;
+  //if (is_root(root)) return;
   node * r = root->backlink;
   if (!root->isleaf && root->subtree.empty()) {
     r->subtree.erase(find(all(r->subtree),root));
@@ -235,6 +235,7 @@ void collapse(node *root) {
   root->backlink = r;
   if (rd <= epsilon) rd = 0;
   root->distance = rd;
+  if (is_root(r)) cerr << root->info sp root->distance sp root->subtree.size() << endl;
 }
 
 void show_event(string s, clock_t& tm) {
@@ -247,7 +248,7 @@ int main() {
   clock_t tm=clock();
   node* root = build_tree(leaves);
   if (!root) return 1;
-  collapse(root);
+  //collapse(root);
   printNodes(root);
   show_event("total time", tm);
 }

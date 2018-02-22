@@ -7,13 +7,13 @@
 #include <cctype>
 #include <map>
 #include <utility>
+#include <iterator>
 using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
 #define tb << "\t" <<
-const unsigned int MAX_COEFF_NR = 10000000;
-const float C = 1000;
+
 const float epsilon = 0.00001;
 
 enum Token_value {
@@ -24,25 +24,22 @@ enum Token_value {
 Token_value curr_tok=END;
 string string_value;
 float number_value;
-int ml;
+
 struct node;
 
 typedef vector<float> distribution;
 typedef vector<node*> nodelist;
-map<string,int> node_indx;
 
 struct node {
   nodelist subtree;
-  node* backlink;
+  node *backlink;
   float distance;
   string info;
   bool selected;
   bool isleaf;
   distribution D;//needed for KS
-  node(): backlink(nullptr),isleaf(false){}
+  node(): backlink(nullptr), selected(false),isleaf(false) {}
 };
-
-typedef pair<float, node*> node_mean;
 
 Token_value get_token(istream& is) {
   char ch;
@@ -82,12 +79,11 @@ node* build_tree(vector<node*>& leaves) {
     cerr << "Could not open file\n";
     return nullptr;
   }
-  node *root = new node();
+  node *root = new node;
   node *cur_node = root;
   root->backlink = root;
   int internal_count = 0;
   stack<node *> A;
-  node* nn;
   while (is) {
     get_token(is);
     if (curr_tok == END) break;
@@ -96,10 +92,9 @@ node* build_tree(vector<node*>& leaves) {
       A.push(cur_node);
       cur_node->info = to_string(internal_count);
       internal_count++;
-      nn = new node();
-      nn->backlink = cur_node;
-      cur_node->subtree.push_back(nn);
-      cur_node = nn;
+      cur_node->subtree.push_back(new node);
+      cur_node->subtree.back()->backlink = cur_node;
+      cur_node = cur_node->subtree.back();
       break;
     case RP:
       cur_node = A.top();
@@ -115,10 +110,9 @@ node* build_tree(vector<node*>& leaves) {
       break;
     case COMMA:
       cur_node = A.top();
-      nn = new node();
-      nn->backlink = cur_node;
-      cur_node->subtree.push_back(nn);
-      cur_node = nn;
+      cur_node->subtree.push_back(new node);
+      cur_node->subtree.back()->backlink = cur_node;
+      cur_node = cur_node->subtree.back();
       break;
     case END:
       cout << "error";
@@ -126,70 +120,7 @@ node* build_tree(vector<node*>& leaves) {
   }
   return root;
 }
-
-float ancestor_distance(node* z, node* w) {//w is descendant of z
-  float dist = 0;
-  while (w != z) {
-    dist += w->distance;
-    w = w->backlink;
-  }
-  return dist;
-}
-
-bool search(node* root, node* child) {
-  if (find(all(root->subtree), child) != end(root->subtree)) return true;
-  for (auto stree: root->subtree)
-    if (stree) return search(stree, child);
-  return false;
-}
-
-node* common_ancestor(node* x, node* y) {
-  node* z = x->backlink;
-  while (!search(z,y)) {
-    if (z==z->backlink) break;
-    else z = z->backlink;
-  }
-  return z;
-}
-
-float calc_distance(node* x, node* y) {
-  node* z = common_ancestor(x, y);
-  return  ancestor_distance(z, x) + ancestor_distance(z, y);
-}
-
-void printLeaves(node* realroot, node *root) {
-  for (auto stree: root->subtree)
-    if (stree) printLeaves(realroot, stree);
-  if (root->isleaf) {
-    float cur_dist = ancestor_distance(realroot, root);
-    cout << root->info << '\t' << cur_dist << '\n';
-  }
-}
-
-void nrLeaves(node *root, int& lv) {
-  for (auto stree: root->subtree)
-    if (stree) nrLeaves(stree, lv);
-  if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
-}
-
-bool is_ancestor(node* x, node* y) {//x is ancestor of y
-  node* z = y->backlink;
-  do {
-    if (x == z) return true;
-    z = z->backlink;
-  } while (z != z->backlink);
-  return x==z;
-} 
-
-void printAncestors(node *root) {
-  node* z = root;
-  while (true) {
-    z = z->backlink;
-    if (z == z->backlink) break;
-    cout << z->info << " ";
-  }
-}
-
+  
 void printNodes(node *root) {
   if (!root->isleaf) cout << "node:" sp root->info
        tb "ancestor:" sp root->backlink->info
@@ -206,58 +137,55 @@ bool is_root(node *root) {
   return root == root->backlink;
 }
 
-void collapse(node *root) {
-  for (auto stree: root->subtree)
-    collapse(stree);
-  if (is_root(root)) return;
-  node * r = root->backlink;
-
-  if (!root->isleaf && root->subtree.empty()) {
-    r->subtree.erase(find(all(r->subtree),root));
-    delete root;
-    return;
-  }
-  if (!root->isleaf && root->subtree.size()==1) {
-    auto it = find(all(r->subtree),root);
-    *it = root->subtree[0];
-    (*it)->backlink = r;
-    (*it)->distance = (*it)->distance + root->distance;
-    delete root;
-    return;
-  }
-
-  if (root->distance > epsilon || is_root(root)) return;
-  auto it = find(all(r->subtree),root);
-  if (it == r->subtree.end()) {cerr << "unexpected " sp root->info;return;}
-  r->subtree.erase(it);
-  float rd;
-  do {
-    rd =  r->distance;
-    r = r->backlink;
-    if (is_root(r)) break;
-  } while (rd <= epsilon);
-  //done collapsing
-  //r->subtree.push_back(root);
-  root->backlink = r;
-  cerr << r->info sp r->subtree.size() sp root->backlink->info << endl;
-  if (rd <= epsilon) rd = 0;
-  root->distance = rd;
-
-}
-
 void show_event(string s, clock_t& tm) {
   tm = clock()-tm;
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
 }
 
+void remove_zero_branches(node *n) {
+  for (auto child : n->subtree) remove_zero_branches(child);//postorder
+  if (n->isleaf) {
+    if (n->distance <= epsilon) n->selected = true;
+    return;
+  }
+  //n is an internal node from here on
+  if (n->distance <= epsilon) n->selected = true;
+  else {
+    if (n->subtree.size() <= 1) n->selected = true;
+  }
+  for (auto it = begin(n->subtree); it != end(n->subtree);it++) {
+    auto child = *it;
+    if (child->selected) {
+      //copy(all(child->subtree), back_inserter(n->subtree));
+      cerr << child->info << endl;
+      for (auto grandchild : child->subtree) n->subtree.push_back(grandchild);
+      delete child;
+      //delete child from subtree
+      n->subtree.erase(it);
+    }
+    else {
+      for ( auto jt = begin(child->subtree); jt != end(child->subtree);) {
+	auto grandchild = *jt;
+	if (grandchild->selected) {
+	  n->subtree.push_back(grandchild);
+	  //delete grandchild from child subtree
+	  child->subtree.erase(jt);
+	}
+	else jt++;
+      }
+      it++;
+    }
+  }  
+}
+
 int main() {
   nodelist leaves;
   clock_t tm=clock();
-  node* root = build_tree(leaves);
+  node *root = build_tree(leaves);
   if (!root) return 1;
-  //printLeaves(root, root);
-  //printNodes(root);
-  collapse(root);
-  cout << "*\n";
+  printNodes(root);
+  cout << "------------------------------------------------------------------------\n";
+  remove_zero_branches(root);
+  printNodes(root);
   show_event("total time", tm);
 }
