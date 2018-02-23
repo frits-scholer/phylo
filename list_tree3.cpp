@@ -165,10 +165,11 @@ void rzb(node *root) {
     pptr->parent->child = root;
     root->parent = pptr->parent;//root is grandchild now
     root->sibling = cptr;
-    root->distance = pptr->distance;
+    root->distance = pptr->distance<=epsilon?0:pptr->distance;
   }
   else  {//a non-leaf
     if (is_root(root) || root->distance > epsilon) return;
+    root->distance = 0;
     //children become grandchildren
     node *pptr = root->parent;
     node *cptr = pptr->child;
@@ -182,6 +183,7 @@ void rzb(node *root) {
       dptr = dptr->sibling;
     }
     eptr->sibling = cptr;//new siblings become siblings of old siblings
+    root->child = nullptr;
   }
 
 }
