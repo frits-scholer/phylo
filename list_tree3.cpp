@@ -140,6 +140,52 @@ bool is_root(node *root) {
   return root == root->parent;
 }
 
+void rzb(node *root) {
+  node *nptr = root->child;
+  while (nptr) {
+    node *sptr = nptr->sibling;//this might be invalidated
+    rzb(nptr);
+    nptr = sptr;
+  }
+ 
+  if (root->isleaf) {
+    if (is_root(root->parent) || root->distance > epsilon) return;
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    if (cptr == root) {pptr->child = root->sibling;}//root is not child anymore
+    else {
+      node *dptr;
+      do {
+	dptr = cptr;
+	cptr = cptr->sibling;
+      } while (cptr != root);
+      dptr->sibling = root->sibling;
+    }
+    cptr = pptr->parent->child;
+    pptr->parent->child = root;
+    root->parent = pptr->parent;//root is grandchild now
+    root->sibling = cptr;
+    root->distance = pptr->distance;
+  }
+  else  {//a non-leaf
+    if (is_root(root) || root->distance > epsilon) return;
+    //children become grandchildren
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    pptr->child = root->child;//first child becomes first grandchild
+    node *dptr = root->child;
+    if (!dptr) return;
+    node *eptr;
+    while (dptr) {
+      eptr = dptr;
+      dptr->parent = pptr;//siblings of first child become grandchildren
+      dptr = dptr->sibling;
+    }
+    eptr->sibling = cptr;//new siblings become siblings of old siblings
+  }
+
+}
+
 void show_event(string s, clock_t& tm) {
   tm = clock()-tm;
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
@@ -150,6 +196,7 @@ int main() {
   clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
+  rzb(root);
   printNodes(root);
   show_event("total time", tm);
 }
