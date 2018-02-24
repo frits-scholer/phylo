@@ -221,6 +221,32 @@ void show_event(string s, clock_t& tm) {
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
 }
 
+void append_stream(ostream& os, node* root) {
+  if (root->isleaf) {os << root->info << ':' << root->distance;return;}
+  os << '(';
+  node *nptr = root->child;
+  while (nptr) {
+    append_stream(os, nptr);
+    nptr = nptr->sibling;
+    if (nptr) os << ',';
+    else os << "):" << root->distance;
+  }
+  if (is_root(root)) os << ')';
+}
+
+void write_newick(node *root) {
+  cerr << "filename?\n";
+  string fname;
+  cin >> fname;
+  ofstream os(fname.c_str());
+  if (!os) {
+    cerr << "Could not open file\n";
+    return;
+  }
+  append_stream(os, root);
+  os.close();
+}
+
 int main() {
   nodelist leaves;
   clock_t tm=clock();
@@ -229,5 +255,6 @@ int main() {
   rzb(root);
   rzn(root);
   printNodes(root);
+  write_newick(root);
   show_event("total time", tm);
 }
