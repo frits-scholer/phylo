@@ -188,6 +188,34 @@ void rzb(node *root) {
 
 }
 
+void rzn(node *root) {
+  node *cptr = root->child;
+  if (root->isleaf) return;
+  //root is not a leaf
+  while (cptr) {
+    node *dptr = cptr->sibling;
+    rzn(cptr);
+    cptr = dptr;
+  }
+  //at this point zero nodes of children are removed
+  if (root->child) return;//nothing more to do
+  node *pptr = root->parent;
+  cptr = pptr->child;
+  if (cptr == root) {//reset child
+    cerr << "C";
+    pptr->child = root->sibling;
+    delete root;
+    return;
+  }
+  node *dptr;
+  while (cptr != root) {
+    dptr = cptr;
+    cptr = cptr->sibling;
+  }
+  dptr->sibling = root->sibling;
+  delete root;
+}
+
 void show_event(string s, clock_t& tm) {
   tm = clock()-tm;
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
@@ -199,6 +227,7 @@ int main() {
   node *root = build_tree(leaves);
   if (!root) return 1;
   rzb(root);
+  rzn(root);
   printNodes(root);
   show_event("total time", tm);
 }
