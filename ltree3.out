@@ -1,181 +1,162 @@
-node: 0	ancestor: 0	distance: 0
-node: a/duck/yunnan/2273/2006_CLADE2.3.4	ancestor: 0	distance: 0.004368
-node: a/vietnam/ut30850/2005_CLADE2.3.4	ancestor: 0	distance: 0.000723
-node: a/goose/guiyang/1147/2006_CLADE2.3.4	ancestor: 0	distance: 0.001085
-node: 121	ancestor: 0	distance: 0.001085
-node: a/goose/guiyang/1461/2006_CLADE2.3.4	ancestor: 121	distance: 0.001087
-node: a/duck/guangxi/4446/2005_CLADE2.3.4	ancestor: 0	distance: 0
-node: a/goose/yunnan/1155/2006_CLADE2.3.4	ancestor: 0	distance: 0.003264
-node: 2	ancestor: 0	distance: 0.005164
-node: 115	ancestor: 2	distance: 0.002974
-node: a/duck/phu_tho/07-48/2007_CLADE2.3.4.3	ancestor: 115	distance: 0.002908
-node: a/muscovy_duck/vietnam/ncvd-52/2007_CLADE2.3.4.3	ancestor: 115	distance: 0.005141
-node: 116	ancestor: 115	distance: 0.002908
-node: a/duck/vietnam/52/2007_CLADE2.3.4.3	ancestor: 116	distance: 0.000727
-node: 3	ancestor: 2	distance: 0.002169
-node: a/avian/hong_kong/2372/2007_CLADE2.3.4.3	ancestor: 3	distance: 0.000725
-node: 114	ancestor: 3	distance: 0.000725
-node: a/scaly-breasted_munia/hong_kong/2572/2007_CLADE2.3.4.3	ancestor: 114	distance: 0.000727
-node: a/house_crow/hong_kong/1203/2007_CLADE2.3.4.3	ancestor: 3	distance: 0
-node: a/japanese_white-eye/hong_kong/737/2007_CLADE2.3.4.3	ancestor: 3	distance: 0
-node: 4	ancestor: 3	distance: 0.002199
-node: 108	ancestor: 4	distance: 0.004439
-node: a/chicken/viet_nam/tmu006/2008_CLADE2.3.4.3	ancestor: 108	distance: 0.006668
-node: 109	ancestor: 108	distance: 0.002917
-node: a/guangxi/1/2008_CLADE2.3.4.3	ancestor: 109	distance: 0.002915
-node: a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3	ancestor: 109	distance: 0.004379
-node: 110	ancestor: 109	distance: 0.001466
-node: a/vietnam/ut31394ii/2008_CLADE2.3.4.3	ancestor: 110	distance: 0.00073
-node: a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3	ancestor: 110	distance: 0.000726
-node: 5	ancestor: 4	distance: 0.000714
-node: a/chicken/vietnam/18129/2009_CLADE2.3.4.3	ancestor: 5	distance: 0.011066
-node: a/chicken/vietnam/ncvd-20/2007_CLADE2.3.4.3	ancestor: 5	distance: 0.000726
-node: 6	ancestor: 5	distance: 0.000726
-node: a/muscovy_duck/son_la/07-85/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.002182
-node: 13	ancestor: 6	distance: 0.000725
-node: a/muscovy_duck/vietnam/ncvd-101/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: a/duck/nam_dinh/07-91/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: 21	ancestor: 13	distance: 0.000726
-node: 22	ancestor: 21	distance: 0.002184
-node: a/duck/vietnam/ncvd-030/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727
-node: a/chicken/vietnam/ncvd-002/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.002186
-node: 26	ancestor: 22	distance: 0.000727
-node: a/muscovy_duck/viet_nam/tmu001/2008_CLADE2.3.4.3	ancestor: 26	distance: 0.002187
-node: a/vietnam/ut31413ii/2008_CLADE2.3.4.3	ancestor: 22	distance: 0
-node: a/muscovy_duck/vietnam/ncvd-154/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727
-node: a/duck/vietnam/ncvd-146/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.00219
-node: 29	ancestor: 22	distance: 0.000727
-node: a/muscovy_duck/vietnam/ncvd-156/2008_CLADE2.3.4.3	ancestor: 29	distance: 0.000727
-node: a/duck/vietnam/ncvd-140/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727
-node: a/civet/vietnam/ncvd-004/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727
-node: a/duck/vietnam/50/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454
-node: 31	ancestor: 13	distance: 0.000726
-node: a/vietnam/hn31244/2007_CLADE2.3.4.3	ancestor: 31	distance: 0.000725
-node: a/vietnam/ut31244iii/2007_CLADE2.3.4.3	ancestor: 31	distance: 0
-node: a/vietnam/ut31244ii/2007_CLADE2.3.4.3	ancestor: 31	distance: 0.000726
-node: a/duck/vietnam/ncvd-116/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: 35	ancestor: 13	distance: 0.000726
-node: a/duck/vietnam/ncvd-105/2007_CLADE2.3.4.3	ancestor: 35	distance: 0.000726
-node: a/duck/vietnam/ncvd-003/2008_CLADE2.3.4.3	ancestor: 35	distance: 0.003647
-node: 37	ancestor: 35	distance: 0.000726
-node: 38	ancestor: 37	distance: 0.001453
-node: a/duck/vietnam/g12/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.005852
-node: 41	ancestor: 38	distance: 0.00291
-node: a/chicken/vietnam/ncvd-279/2009_CLADE2.3.4.3	ancestor: 41	distance: 0.005868
-node: a/chicken/vietnam/ncvd-027/2008_CLADE2.3.4.3	ancestor: 41	distance: 0
-node: a/chicken/vietnam/ncvd-039/2008_CLADE2.3.4.3	ancestor: 41	distance: 0.000726
-node: a/chicken/vietnam/ncvd-025/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.001453
-node: a/duck/vietnam/ncvd-118/2007_CLADE2.3.4.3	ancestor: 38	distance: 0.002909
-node: a/chicken/vietnam/ncvd-033/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.003645
-node: a/muscovy_duck/vietnam/ncvd-119/2007_CLADE2.3.4.3	ancestor: 35	distance: 0.000726
-node: a/chicken/thai_binh/07-89/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: a/duck/vietnam/ncvd-019/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: 45	ancestor: 13	distance: 0.000726
-node: a/muscovy_duck/thai_binh/07-90/2007_CLADE2.3.4.3	ancestor: 45	distance: 0.000726
-node: a/duck/thai_ninh/07-86/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000725
-node: a/chicken/vietnam/ncvd-138/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.005856
-node: 50	ancestor: 13	distance: 0.000725
-node: a/duck/nam_dinh/07-55/2007_CLADE2.3.4.3	ancestor: 50	distance: 0.002187
-node: a/duck/vietnam/ncvd-021/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.001454
-node: a/chicken/vietnam/ncvd-108/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454
-node: a/duck/vietnam/ncvd-022/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.002916
-node: a/vietnam/ut31412ii/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.005119
-node: a/duck/vietnam/ncvd-020/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.002915
-node: a/duck/vietnam/ncvd-94/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000727
-node: a/duck/vietnam/ncvd-100/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: 56	ancestor: 13	distance: 0.000726
-node: a/duck/vietnam/ncvd-60/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000727
-node: a/duck/vietnam/ncvd-76/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000726
-node: a/duck/vietnam/ncvd-61/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000726
-node: a/muscovy_duck/vietnam/41/2007_CLADE2.3.4.3	ancestor: 13	distance: 0
-node: a/duck/vietnam/ncvd-93/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726
-node: a/duck/vietnam/55/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454
-node: 59	ancestor: 13	distance: 0.000726
-node: a/duck/vietnam/ncvd-98/2007_CLADE2.3.4.3	ancestor: 59	distance: 0.002181
-node: 60	ancestor: 13	distance: 0.000714
-node: a/chicken/vietnam/ncvd-029/2008_CLADE2.3.4.3	ancestor: 60	distance: 0.002933
-node: 62	ancestor: 60	distance: 0.002205
-node: a/viet_nam/hn31242/2007_CLADE2.3.4.3	ancestor: 62	distance: 0.001456
-node: a/vietnam/ut31312ii/2007_CLADE2.3.4.3	ancestor: 62	distance: 0.000728
-node: 61	ancestor: 60	distance: 0.002933
-node: a/chicken/vietnam/ncvd-a015/2008_CLADE2.3.4.3	ancestor: 61	distance: 0.008867
-node: 63	ancestor: 13	distance: 0.003666
-node: a/duck/vietnam/na114/2007_CLADE2.3.4.3	ancestor: 63	distance: 0.002919
-node: a/duck/vietnam/na72/2007_CLADE2.3.4.3	ancestor: 63	distance: 0.006628
-node: a/muscovy_duck/nam_dinh/07-87/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726
-node: 65	ancestor: 6	distance: 0.000726
-node: a/duck/vietnam/ncvd-110/2007_CLADE2.3.4.3	ancestor: 65	distance: 0.001453
-node: a/vietnam/ut31203a/2007_CLADE2.3.4.3	ancestor: 65	distance: 0.002929
-node: a/muscovy_duck/vietnam/ncvd-51/2007_CLADE2.3.4.3	ancestor: 65	distance: 0
-node: 66	ancestor: 65	distance: 0.000726
-node: a/muscovy_duck/vietnam/ncvd-114/2007_CLADE2.3.4.3	ancestor: 66	distance: 0.000726
-node: a/chicken/vietnam/ncvd-086/2008_CLADE2.3.4.3	ancestor: 66	distance: 0.00808
-node: a/duck/vietnam/ncvd-113/2007_CLADE2.3.4.3	ancestor: 66	distance: 0
-node: a/vietnam/hn31388m1/2007_CLADE2.3.4.3	ancestor: 66	distance: 0.005111
-node: a/muscovy_duck/vietnam/ncvd-47/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726
-node: a/muscovy_duck/ha_nam/07-47/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726
-node: a/duck/vietnam/ncvd-111/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.002182
-node: 74	ancestor: 6	distance: 0.002182
-node: a/muscovy_duck/vietnam/ncvd-112/2007_CLADE2.3.4.3	ancestor: 74	distance: 0.000726
-node: a/muscovy_duck/vietnam/ncvd-120/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.001455
-node: a/vietnam/ut31239/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726
-node: a/duck/ninh_binh/07-68/2007_CLADE2.3.4.3	ancestor: 6	distance: 0
-node: a/duck/vietnam/ncvd-65/07_CLADE2.3.4.3	ancestor: 6	distance: 0.000726
-node: 93	ancestor: 6	distance: 0.000726
-node: a/muscovy_duck/bac_gieng/07-66/2007_CLADE2.3.4.3	ancestor: 93	distance: 0.001455
-node: 94	ancestor: 93	distance: 0.001455
-node: a/chicken/bac_giang/07-74/2007_CLADE2.3.4.3	ancestor: 94	distance: 0.000726
-node: 77	ancestor: 6	distance: 0.001452
-node: 89	ancestor: 77	distance: 0.004386
-node: a/chicken/vietnam/ncvd-084/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.001458
-node: a/duck/vietnam/ncvd-014/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.000724
-node: 91	ancestor: 89	distance: 0.001458
-node: a/chicken/viet_nam/tmu015/2008_CLADE2.3.4.3	ancestor: 91	distance: 0.000726
-node: a/avian/vietnam/ncvd-132/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.002187
-node: 92	ancestor: 89	distance: 0.002187
-node: a/avian/vietnam/ncvd-133/2008_CLADE2.3.4.3	ancestor: 92	distance: 0.000727
-node: 78	ancestor: 77	distance: 0.000732
-node: a/chicken/vietnam/ncvd-005/2008_CLADE2.3.4.3	ancestor: 78	distance: 0.003644
-node: 87	ancestor: 78	distance: 0.000711
-node: a/muscovy_duck/vietnam/ncvd-041/2008_CLADE2.3.4.3	ancestor: 87	distance: 0.002933
-node: a/avian/vietnam/ncvd-124/2008_CLADE2.3.4.3	ancestor: 87	distance: 0.004412
-node: 88	ancestor: 87	distance: 0.002933
-node: a/duck/vietnam/ncvd-024/2008_CLADE2.3.4.3	ancestor: 88	distance: 0.000726
-node: 79	ancestor: 78	distance: 0.001455
-node: a/duck/vietnam/ncvd-028/2008_CLADE2.3.4.3	ancestor: 79	distance: 0.000726
-node: 81	ancestor: 79	distance: 0.004381
-node: a/duck/vietnam/ncvd-187/2008_CLADE2.3.4.3	ancestor: 81	distance: 0.000727
-node: 83	ancestor: 81	distance: 0.000727
-node: a/chicken/vietnam/ncvd-188/2008_CLADE2.3.4.3	ancestor: 83	distance: 0.001454
-node: a/duck/vietnam/ncvd-186/2008_CLADE2.3.4.3	ancestor: 81	distance: 0
-node: a/chicken/vietnam/ncvd-185/2008_CLADE2.3.4.3	ancestor: 81	distance: 0.000726
-node: 84	ancestor: 79	distance: 0.002184
-node: a/duck/viet_nam/tmu005/2008_CLADE2.3.4.3	ancestor: 84	distance: 0.000727
-node: a/chicken/vietnam/ncvd-006/2008_CLADE2.3.4.3	ancestor: 84	distance: 0
-node: a/chicken/viet_nam/tmu004/2008_CLADE2.3.4.3	ancestor: 84	distance: 0.002917
-node: a/muscovy_duck/vietnam/48/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.001452
-node: 96	ancestor: 6	distance: 0.000726
-node: a/muscovy_duck/ha_nam/07-84/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.001452
-node: a/duck/vietnam/ncvd-71/07_CLADE2.3.4.3	ancestor: 96	distance: 0.000725
-node: 101	ancestor: 96	distance: 0.001452
-node: a/chicken/ha_nam/07-83/2007_CLADE2.3.4.3	ancestor: 101	distance: 0.001451
-node: a/duck/vietnam/ncvd-81/07_CLADE2.3.4.3	ancestor: 96	distance: 0.000725
-node: a/duck/ha_tinh/07-53/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.000725
-node: a/muscovy_duck/vietnam/57/2007_CLADE2.3.4.3	ancestor: 96	distance: 0
-node: a/duck/vietnam/ncvd-50/07_CLADE2.3.4.3	ancestor: 96	distance: 0.00218
-node: a/duck/vietnam/ncvd-63/07_CLADE2.3.4.3	ancestor: 96	distance: 0.002194
-node: 105	ancestor: 96	distance: 0.00218
-node: a/duck/nghe_an/07-49/2007_CLADE2.3.4.3	ancestor: 105	distance: 0.000726
-node: a/duck/vietnam/43/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.000726
-node: a/duck/vietnam/ncvd-62/07_CLADE2.3.4.3	ancestor: 96	distance: 0.002909
-node: a/duck/vietnam/ncvd-57/07_CLADE2.3.4.3	ancestor: 6	distance: 0.001453
-node: a/duck/vietnam/ncvd-56/07_CLADE2.3.4.3	ancestor: 6	distance: 0.001453
-node: 123	ancestor: 0	distance: 0.000725
-node: a/duck/hunan/5106/2005_CLADE2.3.4	ancestor: 123	distance: 0.00146
-node: a/guangxi/1/2005_CLADE2.3.4	ancestor: 123	distance: 0.001459
-node: 124	ancestor: 123	distance: 0.00146
-node: 127	ancestor: 124	distance: 0.001087
-node: a/duck/hunan/5170/2005_CLADE2.3.4	ancestor: 127	distance: 0.001083
-node: a/duck/hunan/5146/2005_CLADE2.3.4	ancestor: 127	distance: 0.00109
-node: a/duck/hunan/5191/2005_CLADE2.3.4	ancestor: 124	distance: 0
-node: a/duck/hunan/5128/2005_CLADE2.3.4	ancestor: 124	distance: 0.001085
+node: 0	ancestor: 0	distance: 0	children: 8
+node: a/goose/guiyang/1461/2006_CLADE2.3.4	ancestor: 0	distance: 0.002172	children: 0
+node: a/duck/yunnan/2273/2006_CLADE2.3.4	ancestor: 0	distance: 0.004368	children: 0
+node: a/vietnam/ut30850/2005_CLADE2.3.4	ancestor: 0	distance: 0.000723	children: 0
+node: a/goose/guiyang/1147/2006_CLADE2.3.4	ancestor: 0	distance: 0.001085	children: 0
+node: a/duck/guangxi/4446/2005_CLADE2.3.4	ancestor: 0	distance: 0	children: 0
+node: a/goose/yunnan/1155/2006_CLADE2.3.4	ancestor: 0	distance: 0.003264	children: 0
+node: 2	ancestor: 0	distance: 0.005164	children: 2
+node: 115	ancestor: 2	distance: 0.002974	children: 3
+node: a/duck/vietnam/52/2007_CLADE2.3.4.3	ancestor: 115	distance: 0.003635	children: 0
+node: a/duck/phu_tho/07-48/2007_CLADE2.3.4.3	ancestor: 115	distance: 0.002908	children: 0
+node: a/muscovy_duck/vietnam/ncvd-52/2007_CLADE2.3.4.3	ancestor: 115	distance: 0.005141	children: 0
+node: 3	ancestor: 2	distance: 0.002169	children: 5
+node: a/scaly-breasted_munia/hong_kong/2572/2007_CLADE2.3.4.3	ancestor: 3	distance: 0.001452	children: 0
+node: a/avian/hong_kong/2372/2007_CLADE2.3.4.3	ancestor: 3	distance: 0.000725	children: 0
+node: a/house_crow/hong_kong/1203/2007_CLADE2.3.4.3	ancestor: 3	distance: 0	children: 0
+node: a/japanese_white-eye/hong_kong/737/2007_CLADE2.3.4.3	ancestor: 3	distance: 0	children: 0
+node: 4	ancestor: 3	distance: 0.002199	children: 2
+node: 108	ancestor: 4	distance: 0.004439	children: 2
+node: a/chicken/viet_nam/tmu006/2008_CLADE2.3.4.3	ancestor: 108	distance: 0.006668	children: 0
+node: 109	ancestor: 108	distance: 0.002917	children: 3
+node: a/guangxi/1/2008_CLADE2.3.4.3	ancestor: 109	distance: 0.002915	children: 0
+node: a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3	ancestor: 109	distance: 0.004379	children: 0
+node: 110	ancestor: 109	distance: 0.001466	children: 2
+node: a/vietnam/ut31394ii/2008_CLADE2.3.4.3	ancestor: 110	distance: 0.00073	children: 0
+node: a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3	ancestor: 110	distance: 0.000726	children: 0
+node: 5	ancestor: 4	distance: 0.000714	children: 3
+node: a/chicken/vietnam/18129/2009_CLADE2.3.4.3	ancestor: 5	distance: 0.011066	children: 0
+node: a/chicken/vietnam/ncvd-20/2007_CLADE2.3.4.3	ancestor: 5	distance: 0.000726	children: 0
+node: 6	ancestor: 5	distance: 0.000726	children: 18
+node: a/muscovy_duck/vietnam/ncvd-112/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.002908	children: 0
+node: a/muscovy_duck/son_la/07-85/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.002182	children: 0
+node: 13	ancestor: 6	distance: 0.000725	children: 27
+node: a/duck/vietnam/ncvd-98/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.002907	children: 0
+node: a/duck/nam_dinh/07-55/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.002912	children: 0
+node: a/muscovy_duck/thai_binh/07-90/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001452	children: 0
+node: 22	ancestor: 13	distance: 0.00291	children: 9
+node: a/muscovy_duck/vietnam/ncvd-156/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.001454	children: 0
+node: a/muscovy_duck/viet_nam/tmu001/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.002914	children: 0
+node: a/duck/vietnam/ncvd-030/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727	children: 0
+node: a/chicken/vietnam/ncvd-002/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.002186	children: 0
+node: a/vietnam/ut31413ii/2008_CLADE2.3.4.3	ancestor: 22	distance: 0	children: 0
+node: a/muscovy_duck/vietnam/ncvd-154/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727	children: 0
+node: a/duck/vietnam/ncvd-146/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.00219	children: 0
+node: a/duck/vietnam/ncvd-140/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727	children: 0
+node: a/civet/vietnam/ncvd-004/2008_CLADE2.3.4.3	ancestor: 22	distance: 0.000727	children: 0
+node: a/muscovy_duck/vietnam/ncvd-101/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: a/duck/nam_dinh/07-91/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: a/duck/vietnam/50/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454	children: 0
+node: 31	ancestor: 13	distance: 0.000726	children: 3
+node: a/vietnam/hn31244/2007_CLADE2.3.4.3	ancestor: 31	distance: 0.000725	children: 0
+node: a/vietnam/ut31244iii/2007_CLADE2.3.4.3	ancestor: 31	distance: 0	children: 0
+node: a/vietnam/ut31244ii/2007_CLADE2.3.4.3	ancestor: 31	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-116/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: 35	ancestor: 13	distance: 0.000726	children: 4
+node: 38	ancestor: 35	distance: 0.002179	children: 5
+node: a/duck/vietnam/g12/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.005852	children: 0
+node: 41	ancestor: 38	distance: 0.00291	children: 3
+node: a/chicken/vietnam/ncvd-279/2009_CLADE2.3.4.3	ancestor: 41	distance: 0.005868	children: 0
+node: a/chicken/vietnam/ncvd-027/2008_CLADE2.3.4.3	ancestor: 41	distance: 0	children: 0
+node: a/chicken/vietnam/ncvd-039/2008_CLADE2.3.4.3	ancestor: 41	distance: 0.000726	children: 0
+node: a/chicken/vietnam/ncvd-025/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.001453	children: 0
+node: a/duck/vietnam/ncvd-118/2007_CLADE2.3.4.3	ancestor: 38	distance: 0.002909	children: 0
+node: a/chicken/vietnam/ncvd-033/2008_CLADE2.3.4.3	ancestor: 38	distance: 0.003645	children: 0
+node: a/duck/vietnam/ncvd-105/2007_CLADE2.3.4.3	ancestor: 35	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-003/2008_CLADE2.3.4.3	ancestor: 35	distance: 0.003647	children: 0
+node: a/muscovy_duck/vietnam/ncvd-119/2007_CLADE2.3.4.3	ancestor: 35	distance: 0.000726	children: 0
+node: a/chicken/thai_binh/07-89/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-019/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: a/duck/thai_ninh/07-86/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000725	children: 0
+node: a/chicken/vietnam/ncvd-138/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.005856	children: 0
+node: a/duck/vietnam/ncvd-021/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.001454	children: 0
+node: a/chicken/vietnam/ncvd-108/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454	children: 0
+node: a/duck/vietnam/ncvd-022/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.002916	children: 0
+node: a/vietnam/ut31412ii/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.005119	children: 0
+node: a/duck/vietnam/ncvd-020/2008_CLADE2.3.4.3	ancestor: 13	distance: 0.002915	children: 0
+node: a/duck/vietnam/ncvd-94/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000727	children: 0
+node: a/duck/vietnam/ncvd-100/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: 56	ancestor: 13	distance: 0.000726	children: 3
+node: a/duck/vietnam/ncvd-60/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000727	children: 0
+node: a/duck/vietnam/ncvd-76/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-61/07_CLADE2.3.4.3	ancestor: 56	distance: 0.000726	children: 0
+node: a/muscovy_duck/vietnam/41/2007_CLADE2.3.4.3	ancestor: 13	distance: 0	children: 0
+node: a/duck/vietnam/ncvd-93/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.000726	children: 0
+node: a/duck/vietnam/55/2007_CLADE2.3.4.3	ancestor: 13	distance: 0.001454	children: 0
+node: 60	ancestor: 13	distance: 0.000714	children: 3
+node: a/chicken/vietnam/ncvd-a015/2008_CLADE2.3.4.3	ancestor: 60	distance: 0.0118	children: 0
+node: a/chicken/vietnam/ncvd-029/2008_CLADE2.3.4.3	ancestor: 60	distance: 0.002933	children: 0
+node: 62	ancestor: 60	distance: 0.002205	children: 2
+node: a/viet_nam/hn31242/2007_CLADE2.3.4.3	ancestor: 62	distance: 0.001456	children: 0
+node: a/vietnam/ut31312ii/2007_CLADE2.3.4.3	ancestor: 62	distance: 0.000728	children: 0
+node: 63	ancestor: 13	distance: 0.003666	children: 2
+node: a/duck/vietnam/na114/2007_CLADE2.3.4.3	ancestor: 63	distance: 0.002919	children: 0
+node: a/duck/vietnam/na72/2007_CLADE2.3.4.3	ancestor: 63	distance: 0.006628	children: 0
+node: a/muscovy_duck/nam_dinh/07-87/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726	children: 0
+node: 65	ancestor: 6	distance: 0.000726	children: 4
+node: a/duck/vietnam/ncvd-110/2007_CLADE2.3.4.3	ancestor: 65	distance: 0.001453	children: 0
+node: a/vietnam/ut31203a/2007_CLADE2.3.4.3	ancestor: 65	distance: 0.002929	children: 0
+node: a/muscovy_duck/vietnam/ncvd-51/2007_CLADE2.3.4.3	ancestor: 65	distance: 0	children: 0
+node: 66	ancestor: 65	distance: 0.000726	children: 4
+node: a/muscovy_duck/vietnam/ncvd-114/2007_CLADE2.3.4.3	ancestor: 66	distance: 0.000726	children: 0
+node: a/chicken/vietnam/ncvd-086/2008_CLADE2.3.4.3	ancestor: 66	distance: 0.00808	children: 0
+node: a/duck/vietnam/ncvd-113/2007_CLADE2.3.4.3	ancestor: 66	distance: 0	children: 0
+node: a/vietnam/hn31388m1/2007_CLADE2.3.4.3	ancestor: 66	distance: 0.005111	children: 0
+node: a/muscovy_duck/vietnam/ncvd-47/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726	children: 0
+node: a/muscovy_duck/ha_nam/07-47/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-111/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.002182	children: 0
+node: a/muscovy_duck/vietnam/ncvd-120/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.001455	children: 0
+node: a/vietnam/ut31239/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.000726	children: 0
+node: a/duck/ninh_binh/07-68/2007_CLADE2.3.4.3	ancestor: 6	distance: 0	children: 0
+node: a/duck/vietnam/ncvd-65/07_CLADE2.3.4.3	ancestor: 6	distance: 0.000726	children: 0
+node: 93	ancestor: 6	distance: 0.000726	children: 2
+node: a/chicken/bac_giang/07-74/2007_CLADE2.3.4.3	ancestor: 93	distance: 0.002181	children: 0
+node: a/muscovy_duck/bac_gieng/07-66/2007_CLADE2.3.4.3	ancestor: 93	distance: 0.001455	children: 0
+node: 77	ancestor: 6	distance: 0.001452	children: 2
+node: 89	ancestor: 77	distance: 0.004386	children: 5
+node: a/avian/vietnam/ncvd-133/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.002914	children: 0
+node: a/chicken/viet_nam/tmu015/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.002184	children: 0
+node: a/chicken/vietnam/ncvd-084/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.001458	children: 0
+node: a/duck/vietnam/ncvd-014/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.000724	children: 0
+node: a/avian/vietnam/ncvd-132/2008_CLADE2.3.4.3	ancestor: 89	distance: 0.002187	children: 0
+node: 78	ancestor: 77	distance: 0.000732	children: 3
+node: a/chicken/vietnam/ncvd-005/2008_CLADE2.3.4.3	ancestor: 78	distance: 0.003644	children: 0
+node: 87	ancestor: 78	distance: 0.000711	children: 3
+node: a/duck/vietnam/ncvd-024/2008_CLADE2.3.4.3	ancestor: 87	distance: 0.003659	children: 0
+node: a/muscovy_duck/vietnam/ncvd-041/2008_CLADE2.3.4.3	ancestor: 87	distance: 0.002933	children: 0
+node: a/avian/vietnam/ncvd-124/2008_CLADE2.3.4.3	ancestor: 87	distance: 0.004412	children: 0
+node: 79	ancestor: 78	distance: 0.001455	children: 3
+node: a/duck/vietnam/ncvd-028/2008_CLADE2.3.4.3	ancestor: 79	distance: 0.000726	children: 0
+node: 81	ancestor: 79	distance: 0.004381	children: 4
+node: a/chicken/vietnam/ncvd-188/2008_CLADE2.3.4.3	ancestor: 81	distance: 0.002181	children: 0
+node: a/duck/vietnam/ncvd-187/2008_CLADE2.3.4.3	ancestor: 81	distance: 0.000727	children: 0
+node: a/duck/vietnam/ncvd-186/2008_CLADE2.3.4.3	ancestor: 81	distance: 0	children: 0
+node: a/chicken/vietnam/ncvd-185/2008_CLADE2.3.4.3	ancestor: 81	distance: 0.000726	children: 0
+node: 84	ancestor: 79	distance: 0.002184	children: 3
+node: a/duck/viet_nam/tmu005/2008_CLADE2.3.4.3	ancestor: 84	distance: 0.000727	children: 0
+node: a/chicken/vietnam/ncvd-006/2008_CLADE2.3.4.3	ancestor: 84	distance: 0	children: 0
+node: a/chicken/viet_nam/tmu004/2008_CLADE2.3.4.3	ancestor: 84	distance: 0.002917	children: 0
+node: a/muscovy_duck/vietnam/48/2007_CLADE2.3.4.3	ancestor: 6	distance: 0.001452	children: 0
+node: 96	ancestor: 6	distance: 0.000726	children: 11
+node: a/duck/nghe_an/07-49/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.002906	children: 0
+node: a/chicken/ha_nam/07-83/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.002903	children: 0
+node: a/muscovy_duck/ha_nam/07-84/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.001452	children: 0
+node: a/duck/vietnam/ncvd-71/07_CLADE2.3.4.3	ancestor: 96	distance: 0.000725	children: 0
+node: a/duck/vietnam/ncvd-81/07_CLADE2.3.4.3	ancestor: 96	distance: 0.000725	children: 0
+node: a/duck/ha_tinh/07-53/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.000725	children: 0
+node: a/muscovy_duck/vietnam/57/2007_CLADE2.3.4.3	ancestor: 96	distance: 0	children: 0
+node: a/duck/vietnam/ncvd-50/07_CLADE2.3.4.3	ancestor: 96	distance: 0.00218	children: 0
+node: a/duck/vietnam/ncvd-63/07_CLADE2.3.4.3	ancestor: 96	distance: 0.002194	children: 0
+node: a/duck/vietnam/43/2007_CLADE2.3.4.3	ancestor: 96	distance: 0.000726	children: 0
+node: a/duck/vietnam/ncvd-62/07_CLADE2.3.4.3	ancestor: 96	distance: 0.002909	children: 0
+node: a/duck/vietnam/ncvd-57/07_CLADE2.3.4.3	ancestor: 6	distance: 0.001453	children: 0
+node: a/duck/vietnam/ncvd-56/07_CLADE2.3.4.3	ancestor: 6	distance: 0.001453	children: 0
+node: 123	ancestor: 0	distance: 0.000725	children: 3
+node: a/duck/hunan/5106/2005_CLADE2.3.4	ancestor: 123	distance: 0.00146	children: 0
+node: a/guangxi/1/2005_CLADE2.3.4	ancestor: 123	distance: 0.001459	children: 0
+node: 124	ancestor: 123	distance: 0.00146	children: 3
+node: 127	ancestor: 124	distance: 0.001087	children: 2
+node: a/duck/hunan/5170/2005_CLADE2.3.4	ancestor: 127	distance: 0.001083	children: 0
+node: a/duck/hunan/5146/2005_CLADE2.3.4	ancestor: 127	distance: 0.00109	children: 0
+node: a/duck/hunan/5191/2005_CLADE2.3.4	ancestor: 124	distance: 0	children: 0
+node: a/duck/hunan/5128/2005_CLADE2.3.4	ancestor: 124	distance: 0.001085	children: 0

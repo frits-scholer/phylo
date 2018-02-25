@@ -124,11 +124,22 @@ node* build_tree(vector<node*>& leaves) {
   }
   return root;
 }
+int nr_of_children(node *root) {
+  int n = 0;
+  node *nptr = root->child;
+  while (nptr) {
+    n++;
+    nptr = nptr->sibling;
+  }
+  return n;
+}
   
 void printNodes(node *root) {
+  int n = nr_of_children(root);
   cout << "node:" sp root->info
-       tb "ancestor:" sp root->parent->info
-       tb "distance:" sp root->distance << endl;
+    tb "ancestor:" sp root->parent->info
+    tb "distance:" sp root->distance
+    tb "children:" sp n << endl;
   node *nptr = root->child;
   while (nptr) {
     printNodes(nptr);
@@ -189,25 +200,41 @@ void rzb(node *root) {
 }
 
 void rzn(node *root) {
-  node *cptr = root->child;
   if (root->isleaf) return;
   //root is not a leaf
+  node *cptr = root->child;
   while (cptr) {
     node *dptr = cptr->sibling;
     rzn(cptr);
     cptr = dptr;
   }
-  //at this point zero nodes of children are removed
-  if (root->child) return;//nothing more to do
+  //at this point zero and one nodes of children are removed
+  int nch = nr_of_children(root);
+  if (nch > 1) return;//nothing more to do
   node *pptr = root->parent;
-  cptr = pptr->child;
-  if (cptr == root) {//reset child
-    cerr << "C";
-    pptr->child = root->sibling;
-    delete root;
-    return;
-  }
   node *dptr;
+  cptr = pptr->child;
+  if (nch == 0) {
+	if (cptr == root) {//reset child
+	  cerr << "C";
+	  pptr->child = root->sibling;
+	  delete root;
+	  return;
+	}
+	while (cptr != root) {
+	  dptr = cptr;
+	  cptr = cptr->sibling;
+	}
+	dptr->sibling = root->sibling;
+	delete root;
+	return;
+  }
+  //case root has single child
+  dptr = root->child;
+  pptr->child = dptr;//child becomes grandchild
+  dptr->sibling = cptr;//new child becomes sibling of old siblings
+  dptr->parent = pptr;
+  dptr->distance = dptr->distance + root->distance;
   while (cptr != root) {
     dptr = cptr;
     cptr = cptr->sibling;
@@ -255,6 +282,6 @@ int main() {
   rzb(root);
   rzn(root);
   printNodes(root);
-  write_newick(root);
+  //write_newick(root);
   show_event("total time", tm);
 }
