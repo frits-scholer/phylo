@@ -156,7 +156,7 @@ void printNodes(node *root) {
 bool is_root(node *root) {
   return root == root->parent;
 }
-
+/*
 void rzb(node *root) {
   node *nptr = root->child;
   while (nptr) {
@@ -184,7 +184,7 @@ void rzb(node *root) {
     root->distance = pptr->distance<=epsilon?0:pptr->distance;
   }
 }
-
+*/
 void rzb_nodes(node *root) {
   node *nptr = root->child;
   while (nptr) {
@@ -320,7 +320,7 @@ int main() {
   clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
-  rzb(root);
+  //rzb(root);
   rzb_nodes(root);
   rzn(root);
   sort_by_distance(root);

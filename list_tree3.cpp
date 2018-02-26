@@ -150,7 +150,7 @@ void printNodes(node *root) {
 bool is_root(node *root) {
   return root == root->parent;
 }
-
+/*
 void rzb(node *root) {
   node *nptr = root->child;
   while (nptr) {
@@ -179,6 +179,7 @@ void rzb(node *root) {
     root->distance = pptr->distance<=epsilon?0:pptr->distance;
   }
 }
+*/ 
 
 void rzb_nodes(node *root) {
   node *nptr = root->child;
@@ -187,7 +188,6 @@ void rzb_nodes(node *root) {
     rzb_nodes(nptr);
     nptr = sptr;
   }
- 
   if (root->isleaf) return;
 //a non-leaf
     if (is_root(root) || root->distance > epsilon) return;
@@ -288,7 +288,7 @@ int main() {
   clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
-  rzb(root);
+  //rzb(root);
   rzb_nodes(root);
   rzn(root);
   printNodes(root);
