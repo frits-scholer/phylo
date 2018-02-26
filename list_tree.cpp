@@ -164,7 +164,6 @@ void rzb(node *root) {
     rzb(nptr);
     nptr = sptr;
   }
- 
   if (root->isleaf) {
     if (is_root(root->parent) || root->distance > epsilon) return;
     node *pptr = root->parent;
@@ -184,7 +183,17 @@ void rzb(node *root) {
     root->sibling = cptr;
     root->distance = pptr->distance<=epsilon?0:pptr->distance;
   }
-  else  {//a non-leaf
+}
+
+void rzb_nodes(node *root) {
+  node *nptr = root->child;
+  while (nptr) {
+    node *sptr = nptr->sibling;//this might be invalidated
+    rzb_nodes(nptr);
+    nptr = sptr;
+  }
+  //a non-leaf
+  if (!root->isleaf) {
     if (is_root(root) || root->distance > epsilon) return;
     root->distance = 0;
     //children become grandchildren
@@ -202,7 +211,6 @@ void rzb(node *root) {
     eptr->sibling = cptr;//new siblings become siblings of old siblings
     root->child = nullptr;
   }
-
 }
 
 void sort_by_distance(node *root) {
@@ -249,7 +257,7 @@ void rzn(node *root) {
   cptr = pptr->child;
   if (nch == 0) {
 	if (cptr == root) {//reset child
-	  cerr << "C";
+	  //cerr << "C";
 	  pptr->child = root->sibling;
 	  delete root;
 	  return;
@@ -313,6 +321,7 @@ int main() {
   node *root = build_tree(leaves);
   if (!root) return 1;
   rzb(root);
+  rzb_nodes(root);
   rzn(root);
   sort_by_distance(root);
   printNodes(root);

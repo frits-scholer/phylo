@@ -178,7 +178,61 @@ void rzb(node *root) {
     root->sibling = cptr;
     root->distance = pptr->distance<=epsilon?0:pptr->distance;
   }
+  /*
   else  {//a non-leaf
+    if (is_root(root) || root->distance > epsilon) return;
+    root->distance = 0;
+    //children become grandchildren
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    pptr->child = root->child;//first child becomes first grandchild
+    node *dptr = root->child;
+    if (!dptr) return;
+    node *eptr;
+    while (dptr) {
+      eptr = dptr;
+      dptr->parent = pptr;//siblings of first child become grandchildren
+      dptr = dptr->sibling;
+    }
+    eptr->sibling = cptr;//new siblings become siblings of old siblings
+    root->child = nullptr;
+  }
+  */
+}
+
+void rzb_nodes(node *root) {
+  node *nptr = root->child;
+  while (nptr) {
+    node *sptr = nptr->sibling;//this might be invalidated
+    rzb_nodes(nptr);
+    nptr = sptr;
+  }
+ 
+  if (root->isleaf) return;
+  /*
+    {
+    if (is_root(root->parent) || root->distance > epsilon) return;
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    if (cptr == root) {pptr->child = root->sibling;}//root is not child anymore
+    else {
+      node *dptr;
+      do {
+	dptr = cptr;
+	cptr = cptr->sibling;
+      } while (cptr != root);
+      dptr->sibling = root->sibling;
+    }
+    cptr = pptr->parent->child;
+    pptr->parent->child = root;
+    root->parent = pptr->parent;//root is grandchild now
+    root->sibling = cptr;
+    root->distance = pptr->distance<=epsilon?0:pptr->distance;
+  }
+
+  else  
+  */
+{//a non-leaf
     if (is_root(root) || root->distance > epsilon) return;
     root->distance = 0;
     //children become grandchildren
@@ -279,9 +333,8 @@ int main() {
   clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
-  /*
   rzb(root);
-  */
+  rzb_nodes(root);
   rzn(root);
   printNodes(root);
   //write_newick(root);
