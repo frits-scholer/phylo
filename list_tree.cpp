@@ -199,9 +199,9 @@ void rzb_nodes(node *root) {
     //children become grandchildren
     node *pptr = root->parent;
     node *cptr = pptr->child;
-    pptr->child = root->child;//first child becomes first grandchild
     node *dptr = root->child;
     if (!dptr) return;
+    pptr->child = root->child;//first child becomes first grandchild
     node *eptr;
     while (dptr) {
       eptr = dptr;
