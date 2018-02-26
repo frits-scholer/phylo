@@ -6,6 +6,9 @@
 #include <string>
 #include <cctype>
 #include <map>
+#include <utility>
+#include <iterator>
+#include <list>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
 #include "glpk.h"
@@ -13,12 +16,15 @@ using namespace std;
 
 #define all(t) begin(t), end(t)
 #define sp << " " <<
+#define tb << "\t" <<
+
+const float epsilon = 0.00001;
 const unsigned int MAX_COEFF_NR = 10000000;
 const float C = 1000;
 
 enum Token_value {
   NAME,END,
-  LP='(',RP=')',COLON=':',COMMA=','
+  LP='(',RP=')',NUMBER=':',COMMA=','
 };
 
 Token_value curr_tok=END;
@@ -26,23 +32,28 @@ string string_value;
 float number_value;
 int ml;
 
+struct node;
 typedef vector<float> distribution;
+typedef vector<node*> nodelist;
+typedef pair<float, node*> node_mean;
+
 map<string,int> node_indx;
 
 struct node {
-  node* ltree;
-  node* rtree;
-  node* backlink;
+  node *parent;
+  node *child;
+  node *sibling;
   float distance;
   string info;
   bool selected;
   bool isleaf;
-  vector<float> D;//needed for KS
-  node(): ltree(nullptr), rtree(nullptr),backlink(nullptr),isleaf(false){}
+  distribution D;//needed for KS
+  node(): parent(nullptr), child(nullptr), sibling(nullptr), selected(false),isleaf(false) {}
 };
 
-typedef pair<float, node*> node_mean;
-typedef vector<node*> nodelist;
+bool less_dist(const node* a, const node* b) {
+  return a->distance < b->distance;
+}
 
 Token_value get_token(istream& is) {
   char ch;
@@ -56,7 +67,7 @@ Token_value get_token(istream& is) {
     return curr_tok = END;
   case ':':    
     is >> number_value;
-    return curr_tok = COLON;
+    return curr_tok = NUMBER;
   case '\'':
     string_value.clear();
     while (is.get(ch)) {if (ch == '\'') break;string_value.push_back(ch);}
@@ -82,11 +93,12 @@ node* build_tree(vector<node*>& leaves) {
     cerr << "Could not open file\n";
     return nullptr;
   }
-  node *root = new node();
+  node *root = new node;
   node *cur_node = root;
-  root->backlink = root;
+  root->parent = root;
   int internal_count = 0;
   stack<node *> A;
+  node *nptr;
   while (is) {
     get_token(is);
     if (curr_tok == END) break;
@@ -95,9 +107,9 @@ node* build_tree(vector<node*>& leaves) {
       A.push(cur_node);
       cur_node->info = to_string(internal_count);
       internal_count++;
-      cur_node->ltree = new node();
-      cur_node->ltree->backlink = cur_node;
-      cur_node = cur_node->ltree;
+      cur_node->child = new node;
+      cur_node->child->parent = cur_node;
+      cur_node = cur_node->child;
       break;
     case RP:
       cur_node = A.top();
@@ -108,14 +120,16 @@ node* build_tree(vector<node*>& leaves) {
       cur_node->isleaf = true;
       leaves.push_back(cur_node);
       break;
-    case COLON:
+    case NUMBER:
       cur_node->distance = number_value;
       break;
     case COMMA:
       cur_node = A.top();
-      cur_node->rtree = new node();
-      cur_node->rtree->backlink = cur_node;
-      cur_node = cur_node->rtree;
+      nptr = new node;
+      nptr->sibling = cur_node->child;
+      cur_node->child = nptr;
+      cur_node->child->parent = cur_node;
+      cur_node = cur_node->child;
       break;
     case END:
       cout << "error";
@@ -123,15 +137,187 @@ node* build_tree(vector<node*>& leaves) {
   }
   return root;
 }
+  
+int nr_of_children(node *root) {
+  int n = 0;
+  node *nptr = root->child;
+  while (nptr) {
+    n++;
+    nptr = nptr->sibling;
+  }
+  return n;
+}
+
+bool is_root(node *root) {
+  return root == root->parent;
+}
+/*
+void rzb(node *root) {
+  node *nptr = root->child;
+  while (nptr) {
+    node *sptr = nptr->sibling;//this might be invalidated
+    rzb(nptr);
+    nptr = sptr;
+  }
+  if (root->isleaf) {
+    if (is_root(root->parent) || root->distance > epsilon) return;
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    if (cptr == root) {pptr->child = root->sibling;}//root is not child anymore
+    else {
+      node *dptr;
+      do {
+	dptr = cptr;
+	cptr = cptr->sibling;
+      } while (cptr != root);
+      dptr->sibling = root->sibling;
+    }
+    cptr = pptr->parent->child;
+    pptr->parent->child = root;
+    root->parent = pptr->parent;//root is grandchild now
+    root->sibling = cptr;
+    root->distance = pptr->distance<=epsilon?0:pptr->distance;
+  }
+}
+*/
+void rzb_nodes(node *root) {
+  node *nptr = root->child;
+  while (nptr) {
+    node *sptr = nptr->sibling;//this might be invalidated
+    rzb_nodes(nptr);
+    nptr = sptr;
+  }
+  //a non-leaf
+  if (!root->isleaf) {
+    if (is_root(root) || root->distance > epsilon) return;
+    root->distance = 0;
+    //children become grandchildren
+    node *pptr = root->parent;
+    node *cptr = pptr->child;
+    node *dptr = root->child;
+    if (!dptr) return;
+    pptr->child = root->child;//first child becomes first grandchild
+    node *eptr;
+    while (dptr) {
+      eptr = dptr;
+      dptr->parent = pptr;//siblings of first child become grandchildren
+      dptr = dptr->sibling;
+    }
+    eptr->sibling = cptr;//new siblings become siblings of old siblings
+    root->child = nullptr;
+  }
+}
+
+void sort_by_distance(node *root) {
+  if (root->isleaf) return;
+  //root is not a leaf
+  node *cptr = root->child;
+  while (cptr) {
+    sort_by_distance(cptr);
+    cptr = cptr->sibling;
+  }
+  cptr = root->child;
+  list<node*> a_list;
+  while (cptr) {
+    a_list.push_back(cptr);
+    cptr = cptr->sibling;
+  }
+  a_list.sort(less_dist);
+
+  auto it = begin(a_list);
+  root->child = *it;
+  while (it != end(a_list)) {
+    auto jt = it;
+    it++;
+    if (it != end(a_list)) (*jt)->sibling = *it;
+    else (*jt)->sibling = nullptr;
+  }
+
+}
+
+void rzn(node *root) {
+  if (root->isleaf) return;
+  //root is not a leaf
+  node *cptr = root->child;
+  while (cptr) {
+    node *dptr = cptr->sibling;
+    rzn(cptr);
+    cptr = dptr;
+  }
+  //at this point zero and one nodes of children are removed
+  int nch = nr_of_children(root);
+  if (nch > 1) return;//nothing more to do
+  node *pptr = root->parent;
+  node *dptr;
+  cptr = pptr->child;
+  if (nch == 0) {
+	if (cptr == root) {//reset child
+	  //cerr << "C";
+	  pptr->child = root->sibling;
+	  delete root;
+	  return;
+	}
+	while (cptr != root) {
+	  dptr = cptr;
+	  cptr = cptr->sibling;
+	}
+	dptr->sibling = root->sibling;
+	delete root;
+	return;
+  }
+  //case root has single child
+  dptr = root->child;
+  pptr->child = dptr;//child becomes grandchild
+  dptr->sibling = cptr;//new child becomes sibling of old siblings
+  dptr->parent = pptr;
+  dptr->distance = dptr->distance + root->distance;
+  while (cptr != root) {
+    dptr = cptr;
+    cptr = cptr->sibling;
+  }
+  dptr->sibling = root->sibling;
+  delete root;
+}
+
+void append_stream(ostream& os, node* root) {
+  if (root->isleaf) {os << root->info << ':' << root->distance;return;}
+  os << '(';
+  node *nptr = root->child;
+  while (nptr) {
+    append_stream(os, nptr);
+    nptr = nptr->sibling;
+    if (nptr) os << ',';
+    else os << "):" << root->distance;
+  }
+  if (is_root(root)) os << ')';
+}
+
+void write_newick(node *root) {
+  cerr << "filename of output newick file?\n";
+  string fname;
+  cin >> fname;
+  ofstream os(fname.c_str());
+  if (!os) {
+    cerr << "Could not open file\n";
+    return;
+  }
+  append_stream(os, root);
+  os.close();
+}
 
 int select_clades(node *root) {//returns nr of leaves
   if (root->isleaf) return 1;
-  int nr_leaves = select_clades(root->ltree) + select_clades(root->rtree);
+  int nr_leaves{0};
+  node *cptr = root->child;
+  while (cptr) {
+    nr_leaves += select_clades(cptr);
+    cptr = cptr->sibling;
+  }
   if (nr_leaves >= ml ) {
     //cout << root->info << '[' << nr_leaves << ']' << endl;
     root->selected = true;
   }
-  else root->selected = false;
+  //else root->selected = false;
   return nr_leaves;
 }
 
@@ -139,20 +325,22 @@ float ancestor_distance(node* z, node* w) {//w is descendant of z
   float dist = 0;
   while (w != z) {
     dist += w->distance;
-    w = w->backlink;
+    w = w->parent;
   }
   return dist;
 }
 
-bool search(node* root, node* child) {
-  if (root->ltree == child) return true;
-  if (root->rtree == child) return true;
-  if (root->ltree && search(root->ltree, child)) return true;
-  if (root->rtree && search(root->rtree, child)) return true;
-  /*
-  if (root->ltree) return search(root->ltree, child);
-  if (root->rtree) return search(root->rtree, child);
-  */
+bool search(node* root, node* target) {
+  node *cptr = root->child;
+  while (cptr) {
+    if (cptr == target) return true;
+    cptr = cptr->sibling;
+  }
+  *cptr = root->child;
+  while (cptr) {
+    if (search(cptr, target) return true;
+    cptr = cptr->sibling;
+  }
   return false;
 }
 
@@ -226,15 +414,16 @@ void printAncestors(node *root) {
 
 void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx) {
   node* z = root;
-  do {
+  while (true) {
     z = z->backlink;
+    if (z == z->backlink) break;
     if (node_indx[z->info]) {
       ia[indx]=i;
       ja[indx] = node_indx[z->info];
       ar[indx]=1;
       indx++;
     }
-  } while (z != z->backlink);
+  }
 }
 
 void show_event(string s, clock_t& tm) {
@@ -243,9 +432,13 @@ void show_event(string s, clock_t& tm) {
 }
 
 int main() {
-  vector<node*> leaves;
-  node* root = build_tree(leaves);
+  nodelist leaves;
+  clock_t tm=clock();
+  node *root = build_tree(leaves);
   if (!root) return 1;
+  cerr << "Do you want to remove zero length branches?(y/n)\n";
+  char zl;
+  cin >> zl;
   float gamma;
   cerr << "Minimum nr of leaves of considered clades?\n";
   cin >> ml;
@@ -254,9 +447,17 @@ int main() {
   float FDR;
   cerr << "FDR (False Discovery Rate)?\n";
   cin >> FDR;
+  //end of input
+  clock_t tm=clock();
+  if (zl == 'y') {
+    //rzb(root);
+    rzb_nodes(root);
+    rzn(root);
+    sort_by_distance(root);
+    write_newick(root);//give output nwk filename
+  }
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
-  clock_t tm=clock();
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
@@ -272,17 +473,14 @@ int main() {
   float gm;
   if (msize & 1) gm = means[msize/2].first;
   else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
-  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
   auto it = lower_bound(all(means),node_mean(gm,nullptr));
   msize = distance(it, end(means));
   float mad;
   if (msize & 1) mad = (it + msize/2)->first - gm;
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
-  cout << "mad = " << mad << endl;
   float upperbound = gm + gamma * mad;
   it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
-  cout << "size of filtered means = " << means.size() << endl;
   //presort all data
   preSort(root);
   nodelist sel_nodes;
@@ -315,6 +513,9 @@ int main() {
   vector<float> q(p.size());
   bh_fdr(p,q);
   //auxiliary output
+  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
+  cout << "mad = " << mad << endl;
+  cout << "size of filtered means = " << means.size() << endl;
   /*
   for (auto n: sel_nodes) {
     cout << n->info << ": ";
@@ -362,7 +563,7 @@ int main() {
   for (int i=1;i<=N;i++) {
     glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
     ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
-    if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
+    IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
     }
 
   auto itq = begin(q);
@@ -371,6 +572,7 @@ int main() {
   for (int i = 1;i < N;i++) {
     for (int j = 0;j < i;j++) {
       if (*isel) {
+	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq sp 2*C + FDR - *itq << endl;
 	glp_add_rows(mip, 1);//add constraint row
 	glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + FDR - *itq);
 	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
