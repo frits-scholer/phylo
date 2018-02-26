@@ -279,7 +279,9 @@ int main() {
   clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
+  /*
   rzb(root);
+  */
   rzn(root);
   printNodes(root);
   //write_newick(root);
