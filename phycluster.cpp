@@ -32,12 +32,13 @@ string string_value;
 float number_value;
 int ml;
 
+map<string,int> node_indx;
+
 struct node;
 typedef vector<float> distribution;
 typedef vector<node*> nodelist;
 typedef pair<float, node*> node_mean;
 
-map<string,int> node_indx;
 
 struct node {
   node *parent;
@@ -151,35 +152,7 @@ int nr_of_children(node *root) {
 bool is_root(node *root) {
   return root == root->parent;
 }
-/*
-void rzb(node *root) {
-  node *nptr = root->child;
-  while (nptr) {
-    node *sptr = nptr->sibling;//this might be invalidated
-    rzb(nptr);
-    nptr = sptr;
-  }
-  if (root->isleaf) {
-    if (is_root(root->parent) || root->distance > epsilon) return;
-    node *pptr = root->parent;
-    node *cptr = pptr->child;
-    if (cptr == root) {pptr->child = root->sibling;}//root is not child anymore
-    else {
-      node *dptr;
-      do {
-	dptr = cptr;
-	cptr = cptr->sibling;
-      } while (cptr != root);
-      dptr->sibling = root->sibling;
-    }
-    cptr = pptr->parent->child;
-    pptr->parent->child = root;
-    root->parent = pptr->parent;//root is grandchild now
-    root->sibling = cptr;
-    root->distance = pptr->distance<=epsilon?0:pptr->distance;
-  }
-}
-*/
+
 void rzb_nodes(node *root) {
   node *nptr = root->child;
   while (nptr) {
@@ -313,11 +286,8 @@ int select_clades(node *root) {//returns nr of leaves
     nr_leaves += select_clades(cptr);
     cptr = cptr->sibling;
   }
-  if (nr_leaves >= ml ) {
-    //cout << root->info << '[' << nr_leaves << ']' << endl;
-    root->selected = true;
-  }
-  //else root->selected = false;
+  if (nr_leaves >= ml ) root->selected = true;
+  else root->selected = false;
   return nr_leaves;
 }
 
@@ -338,17 +308,17 @@ bool search(node* root, node* target) {
   }
   cptr = root->child;
   while (cptr) {
-    if (search(cptr, target) return true;
+    if (search(cptr, target)) return true;
     cptr = cptr->sibling;
   }
   return false;
 }
 
 node* common_ancestor(node* x, node* y) {
-  node* z = x->backlink;
+  node* z = x->parent;
   while (!search(z,y)) {
-    if (z==z->backlink) break;
-    else z = z->backlink;
+    if (is_root(z)) break;
+    else z = z->parent;
   }
   return z;
 }
@@ -358,72 +328,84 @@ void process_distance(node* x, node* y) {
   float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
   while (true) {
     z->D.push_back(ild);//generate D even if internal node is not selected
-    if (z == z->backlink) return;
-    z = z->backlink;
+    if (is_root(z)) return;
+    z = z->parent;
   }
 }
+
 float calc_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
   return  ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
 void calc_mean(node *root, vector<node_mean>& v) {
-  if (root->ltree) calc_mean(root->ltree, v);
+  node *cptr = root->child;
+  while (cptr) {
+    calc_mean(cptr, v);
+    cptr = cptr->sibling;
+  }
   if (!(root->isleaf) && root->selected) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
   }
-  if (root->rtree) calc_mean(root->rtree, v);
 }
 
 void printLeaves(node *root) {
-  if (root->ltree) printLeaves(root->ltree);
-  if (root->rtree) printLeaves(root->rtree);
+  node *cptr = root->child;
+  while (cptr) {
+    printLeaves(cptr);
+    cptr = cptr->sibling;
+  }
   if (root->isleaf) cout << root->info << '\n';
 }
 
 void nrLeaves(node *root, int& lv) {
-  if (root->ltree) nrLeaves(root->ltree, lv);
-  if (root->rtree) nrLeaves(root->rtree, lv);
-  if (root->isleaf) {lv++;/*cout << root->info << ' ';*/}
+  node *cptr = root->child;
+  while (cptr) {
+    nrLeaves(cptr, lv);
+    cptr = cptr->sibling;
+  }
+  if (root->isleaf) lv++;
 }
 
 bool is_ancestor(node* x, node* y) {//x is ancestor of y
-  node* z = y->backlink;
+  node* z = y->parent;
   do {
     if (x == z) return true;
-    z = z->backlink;
-  } while (z != z->backlink);
+    z = z->parent;
+  } while (!is_root(z));
   return x==z;
 } 
 
 void preSort(node *root) {
-  if (root->ltree) preSort(root->ltree);
-  if (root->rtree) preSort(root->rtree);
+  node *cptr = root->child;
+  while (cptr) {
+    preSort(cptr);
+    cptr = cptr->sibling;
+  }
   if (!(root->isleaf)) sort(all(root->D));
 }
 
-void printAncestors(node *root) {
+void printAncestors(node *root) {//prints all nontrivial ancestors
   node* z = root;
   while (true) {
-    z = z->backlink;
-    if (z == z->backlink) break;
+    z = z->parent;
+    if (is_root(z)) break;
     cout << z->info << " ";
   }
 }
 
 void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx) {
   node* z = root;
-  while (true) {
-    z = z->backlink;
-    if (z == z->backlink) break;
+  do {
+    z = z->parent;
     if (node_indx[z->info]) {
       ia[indx]=i;
       ja[indx] = node_indx[z->info];
       ar[indx]=1;
       indx++;
     }
-  }
+  } while (!is_root(z));
 }
 
 void show_event(string s, clock_t& tm) {
@@ -433,7 +415,6 @@ void show_event(string s, clock_t& tm) {
 
 int main() {
   nodelist leaves;
-  clock_t tm=clock();
   node *root = build_tree(leaves);
   if (!root) return 1;
   cerr << "Do you want to remove zero length branches?(y/n)\n";
@@ -473,14 +454,17 @@ int main() {
   float gm;
   if (msize & 1) gm = means[msize/2].first;
   else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
+  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
   auto it = lower_bound(all(means),node_mean(gm,nullptr));
   msize = distance(it, end(means));
   float mad;
   if (msize & 1) mad = (it + msize/2)->first - gm;
   else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
+  cout << "mad = " << mad << endl;
   float upperbound = gm + gamma * mad;
   it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
   means.erase(it, end(means));
+  cout << "size of filtered means = " << means.size() << endl;
   //presort all data
   preSort(root);
   nodelist sel_nodes;
@@ -488,20 +472,19 @@ int main() {
   vector<bool> sel;
   vector<float> p;
   int N = sel_nodes.size();  
-
   for (int i = 1;i < N;i++) {
     for (int j = 0;j < i;j++) {
       sel.push_back(false);
       //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-      if (is_ancestor(sel_nodes[i], sel_nodes[j]) || is_ancestor(sel_nodes[j], sel_nodes[i])) {
+      if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
+	  is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	p.push_back(ks.second);
 	sel.back()=true;
 	}
       else {
-	node* ca = sel_nodes[i]->backlink;
-	if (ca != sel_nodes[j]->backlink) continue; 
-	//node* ca = common_ancestor(sel_nodes[i], sel_nodes[j]);
+	node* ca = sel_nodes[i]->parent;
+	if (ca != sel_nodes[j]->parent) continue; 
 	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	p.push_back(max(ksi.second, ksj.second));
@@ -513,9 +496,6 @@ int main() {
   vector<float> q(p.size());
   bh_fdr(p,q);
   //auxiliary output
-  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
-  cout << "mad = " << mad << endl;
-  cout << "size of filtered means = " << means.size() << endl;
   /*
   for (auto n: sel_nodes) {
     cout << n->info << ": ";
@@ -563,9 +543,8 @@ int main() {
   for (int i=1;i<=N;i++) {
     glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
     ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
-    IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
+    if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
     }
-
   auto itq = begin(q);
   auto isel = begin(sel);
   int row_n = N + 1;
@@ -583,7 +562,6 @@ int main() {
       isel++;
     }
   }
-
   glp_load_matrix(mip, indx-1, ia, ja, ar);
   glp_iocp parm;
   glp_init_iocp(&parm);
