@@ -336,7 +336,7 @@ bool search(node* root, node* target) {
     if (cptr == target) return true;
     cptr = cptr->sibling;
   }
-  *cptr = root->child;
+  cptr = root->child;
   while (cptr) {
     if (search(cptr, target) return true;
     cptr = cptr->sibling;

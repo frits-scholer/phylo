@@ -258,7 +258,7 @@ int main() {
   //start timer
   clock_t tm=clock();
   select_clades(root);
-  root->selected = true;
+  //root->selected = true;
   //set up interleaf distances
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
     for (auto jl = begin(leaves);jl != il;jl++) {
