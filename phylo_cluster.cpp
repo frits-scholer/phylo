@@ -158,7 +158,7 @@ bool search(node* root, node* child) {
 
 node* common_ancestor(node* x, node* y) {
   node* z = x->backlink;
-  while (!search(z,y)) {
+  while (!search(z,y )) {
     if (z==z->backlink) break;
     else z = z->backlink;
   }
@@ -340,6 +340,7 @@ int main() {
   }
   */
   //start clustering
+
   glp_prob *mip = glp_create_prob();
   glp_set_prob_name(mip, "cluster");
   glp_set_obj_dir(mip, GLP_MAX);
@@ -400,6 +401,7 @@ int main() {
   delete[] ia;
   delete[] ja;
   delete[] ar;
+
   show_event("total time", tm);
 
 }

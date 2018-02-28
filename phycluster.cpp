@@ -311,6 +311,7 @@ bool search(node* root, node* target) {
     if (search(cptr, target)) return true;
     cptr = cptr->sibling;
   }
+
   return false;
 }
 
@@ -442,11 +443,13 @@ int main() {
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
+  cerr << "before\n";
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
     for (auto jl = begin(leaves);jl != il;jl++) {
       process_distance(*il,*jl);
     }
   }
+  cerr << "after\n";
   vector<node_mean> means;
   calc_mean(root, means);
   sort(all(means));
