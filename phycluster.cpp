@@ -300,28 +300,17 @@ float ancestor_distance(node* z, node* w) {//w is descendant of z
   return dist;
 }
 
-bool search(node* root, node* target) {
-  node *cptr = root->child;
-  while (cptr) {
-    if (cptr == target) return true;
-    cptr = cptr->sibling;
-  }
-  cptr = root->child;
-  while (cptr) {
-    if (search(cptr, target)) return true;
-    cptr = cptr->sibling;
-  }
-
-  return false;
-}
-
 node* common_ancestor(node* x, node* y) {
-  node* z = x->parent;
-  while (!search(z,y)) {
-    if (is_root(z)) break;
-    else z = z->parent;
+  node* ax = x->parent;
+  while (true) {
+    node* ay = y->parent;
+    while (true) {
+      if (ax == ay) return ax;
+      if (is_root(ay)) break;
+      ay = ay->parent;
+    }
+    ax = ax->parent;
   }
-  return z;
 }
 
 void process_distance(node* x, node* y) {
@@ -443,13 +432,11 @@ int main() {
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
-  cerr << "before\n";
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
     for (auto jl = begin(leaves);jl != il;jl++) {
       process_distance(*il,*jl);
     }
   }
-  cerr << "after\n";
   vector<node_mean> means;
   calc_mean(root, means);
   sort(all(means));

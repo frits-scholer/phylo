@@ -144,25 +144,17 @@ float ancestor_distance(node* z, node* w) {//w is descendant of z
   return dist;
 }
 
-bool search(node* root, node* child) {
-  if (root->ltree == child) return true;
-  if (root->rtree == child) return true;
-  if (root->ltree && search(root->ltree, child)) return true;
-  if (root->rtree && search(root->rtree, child)) return true;
-  /*
-  if (root->ltree) return search(root->ltree, child);
-  if (root->rtree) return search(root->rtree, child);
-  */
-  return false;
-}
-
 node* common_ancestor(node* x, node* y) {
-  node* z = x->backlink;
-  while (!search(z,y )) {
-    if (z==z->backlink) break;
-    else z = z->backlink;
+  node* ax = x->backlink;
+  while (true) {
+    node* ay = y->backlink;
+    while (true) {
+      if (ax == ay) return ax;
+      if (ay==ay->backlink) break;
+      ay = ay->backlink;
+    }
+    ax = ax->backlink;
   }
-  return z;
 }
 
 void process_distance(node* x, node* y) {
