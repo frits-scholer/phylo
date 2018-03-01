@@ -552,10 +552,11 @@ int main() {
       isel++;
     }
   }
+  glp_simplex(mip, NULL);
   glp_load_matrix(mip, indx-1, ia, ja, ar);
   glp_iocp parm;
   glp_init_iocp(&parm);
-  parm.presolve = GLP_ON;
+  //parm.presolve = GLP_ON;
   int err = glp_intopt(mip, &parm);
   cout << "Return value (should be 0): " << err << endl;
   cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
