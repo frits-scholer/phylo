@@ -260,9 +260,10 @@ void append_stream(ostream& os, node* root) {
     append_stream(os, nptr);
     nptr = nptr->sibling;
     if (nptr) os << ',';
-    else os << "):" << root->distance;
   }
-  if (is_root(root)) os << ')';
+  os << ')';
+  if (is_root(root)) os << ";";
+  else os << ':' << root->distance;
 }
 
 void write_newick(node *root) {
@@ -425,8 +426,8 @@ int main() {
     rzb_nodes(root);
     rzn(root);
     sort_by_distance(root);
-    write_newick(root);//give output nwk filename
   }
+  write_newick(root);//give output nwk filename
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
   select_clades(root);
@@ -510,6 +511,10 @@ int main() {
     }
   }
   */
+  cerr << "Do you want to find clusters with plpk(y/n)?\n";
+  char cl;
+  cin >> cl;
+  if (cl == 'y') {
   //start clustering
   glp_prob *mip = glp_create_prob();
   glp_set_prob_name(mip, "cluster");
@@ -571,6 +576,7 @@ int main() {
   delete[] ia;
   delete[] ja;
   delete[] ar;
+  }
   show_event("total time", tm);
 
 }

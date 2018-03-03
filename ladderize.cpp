@@ -38,7 +38,7 @@ struct node;
 typedef vector<float> distribution;
 typedef vector<node*> nodelist;
 typedef pair<float, node*> node_mean;
-typedef pair<pair<int, float>,node*> nrs_node;
+typedef pair<int,node*> nrs_node;
 
 struct node {
   node *parent;
@@ -367,7 +367,7 @@ int ladderize(node *root) {
   int N = 0;
   while (cptr) {
     int M = ladderize(cptr);
-    a_list.push_back(make_pair(make_pair(M,cptr->distance), cptr));
+    a_list.push_back(make_pair(M, cptr));
     N += M;
     cptr = cptr->sibling;
   }
@@ -433,175 +433,8 @@ int main() {
   nodelist leaves;
   node *root = build_tree(leaves);
   if (!root) return 1;
-  cerr << "Do you want to remove zero length branches?(y/n)\n";
-  char zl;
-  cin >> zl;
-  float gamma;
-  cerr << "Minimum nr of leaves of considered clades?\n";
-  cin >> ml;
-  cerr << "Gamma factor?\n";
-  cin >> gamma;
-  float FDR;
-  cerr << "FDR (False Discovery Rate)?\n";
-  cin >> FDR;
-  //end of input
   clock_t tm=clock();
-  if (zl == 'y') {
-    //rzb(root);
-    rzb_nodes(root);
-    rzn(root);
-    //sort_by_distance(root);
-  }
   ladderize(root);
   write_newick(root);//give output nwk filename
-  cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
-  //start timer
-  select_clades(root);
-  root->selected = true;
-  //set up interleaf distances
-  for (auto il=begin(leaves)+1;il != end(leaves);il++) {
-    for (auto jl = begin(leaves);jl != il;jl++) {
-      process_distance(*il,*jl);
-    }
-  }
-  vector<node_mean> means;
-  calc_mean(root, means);
-  sort(all(means));
-  size_t msize = means.size();
-  float gm;
-  if (msize & 1) gm = means[msize/2].first;
-  else gm = (means[msize/2-1].first + means[msize/2].first)/2.0;
-  cout << "size of means = " sp msize sp "grand median = " << gm << endl;
-  auto it = lower_bound(all(means),node_mean(gm,nullptr));
-  msize = distance(it, end(means));
-  float mad;
-  if (msize & 1) mad = (it + msize/2)->first - gm;
-  else mad = ((it + msize/2-1)->first + (it + msize/2)->first)/2.0 - gm;
-  cout << "mad = " << mad << endl;
-  float upperbound = gm + gamma * mad;
-  it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
-  means.erase(it, end(means));
-  cout << "size of filtered means = " << means.size() << endl;
-  //presort all data
-  preSort(root);
-  nodelist sel_nodes;
-  for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
-  vector<bool> sel;
-  vector<float> p;
-  int N = sel_nodes.size();  
-  for (int i = 1;i < N;i++) {
-    for (int j = 0;j < i;j++) {
-      sel.push_back(false);
-      //cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-      if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
-	  is_ancestor(sel_nodes[j], sel_nodes[i])) {
-	auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
-	p.push_back(ks.second);
-	sel.back()=true;
-	}
-      else {
-	node* ca = sel_nodes[i]->parent;
-	if (ca != sel_nodes[j]->parent) continue; 
-	auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	auto ksj = kstwo(sel_nodes[j]->D, ca->D);
-	p.push_back(max(ksi.second, ksj.second));
-	sel.back()=true;
-      }
-    }
-  }
-  //cerr << p.size() << endl;
-  vector<float> q(p.size());
-  bh_fdr(p,q);
-  //auxiliary output
-  /*
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printAncestors(n);
-    cout << endl;
-  }
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printLeaves(n);
-    cout << endl;
-  }
-  ostream_iterator<float> os(cout, " ");
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    copy(all(n->D),os);
-    cout << endl;
-  }
-  for (unsigned int i = 1;i < N;i++) {
-    for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t'
-	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
-    }
-  }
-  */
-  cerr << "Do you want to find clusters with plpk(y/n)?\n";
-  char cl;
-  cin >> cl;
-  if (cl == 'y') {
-  //start clustering
-  glp_prob *mip = glp_create_prob();
-  glp_set_prob_name(mip, "cluster");
-  glp_set_obj_dir(mip, GLP_MAX);
-  glp_add_cols(mip, N);
-  long indx{1};
-  //set object
-  for (int i=1;i<=N;i++) {
-    node_indx[sel_nodes[i-1]->info] = indx;indx++;
-    int lv{0};
-    nrLeaves(sel_nodes[i-1], lv);
-    glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
-    glp_set_col_kind(mip, i, GLP_BV);
-    glp_set_obj_coef(mip, i, lv);
-  }
-  int *ia = new int [1+MAX_COEFF_NR];
-  int *ja = new int [1+MAX_COEFF_NR];
-  double *ar = new double [1+MAX_COEFF_NR];
-  glp_add_rows(mip, N);
-  indx = 1;
-  for (int i=1;i<=N;i++) {
-    glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
-    ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
-    if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
-    }
-  auto itq = begin(q);
-  auto isel = begin(sel);
-  int row_n = N + 1;
-  for (int i = 1;i < N;i++) {
-    for (int j = 0;j < i;j++) {
-      if (*isel) {
-	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t' << *itq sp 2*C + FDR - *itq << endl;
-	glp_add_rows(mip, 1);//add constraint row
-	glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + FDR - *itq);
-	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
-	ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
-	row_n++;
-	itq++;
-      }
-      isel++;
-    }
-  }
-  glp_load_matrix(mip, indx-1, ia, ja, ar);
-  glp_iocp parm;
-  glp_init_iocp(&parm);
-  parm.presolve = GLP_ON;
-  int err = glp_intopt(mip, &parm);
-  cout << "Return value (should be 0): " << err << endl;
-  cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
-  for (int i=1;i<=N;i++) {
-    if (glp_mip_col_val(mip, i) == 1 ) {
-      cout << glp_get_col_name(mip, i) sp ":" << endl;
-      printLeaves(sel_nodes[i-1]);
-      cout << endl;
-    }
-  }
-  glp_delete_prob(mip);
-  delete[] ia;
-  delete[] ja;
-  delete[] ar;
-  }
   show_event("total time", tm);
-
 }
