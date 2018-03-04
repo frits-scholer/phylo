@@ -181,33 +181,6 @@ void rzb_nodes(node *root) {
   }
 }
 
-void sort_by_distance(node *root) {
-  if (root->isleaf) return;
-  //root is not a leaf
-  node *cptr = root->child;
-  while (cptr) {
-    sort_by_distance(cptr);
-    cptr = cptr->sibling;
-  }
-  cptr = root->child;
-  list<node*> a_list;
-  while (cptr) {
-    a_list.push_back(cptr);
-    cptr = cptr->sibling;
-  }
-  a_list.sort(less_dist);
-
-  auto it = begin(a_list);
-  root->child = *it;
-  while (it != end(a_list)) {
-    auto jt = it;
-    it++;
-    if (it != end(a_list)) (*jt)->sibling = *it;
-    else (*jt)->sibling = nullptr;
-  }
-
-}
-
 void rzn(node *root) {
   if (root->isleaf) return;
   //root is not a leaf
@@ -225,7 +198,6 @@ void rzn(node *root) {
   cptr = pptr->child;
   if (nch == 0) {
 	if (cptr == root) {//reset child
-	  //cerr << "C";
 	  pptr->child = root->sibling;
 	  delete root;
 	  return;
@@ -338,6 +310,8 @@ void calc_mean(node *root, vector<node_mean>& v) {
   if (!(root->isleaf) && root->selected) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
+    //auto a = v.back();
+    //cerr << a.first sp a.second->info << endl;
   }
 }
 
@@ -357,6 +331,17 @@ void nrLeaves(node *root, int& lv) {
     cptr = cptr->sibling;
   }
   if (root->isleaf) lv++;
+}
+
+void printNodes(node *root) {
+  node *cptr = root->child;
+  while (cptr) {
+    printNodes(cptr);
+    cptr = cptr->sibling;
+  }
+  int lv{0};
+  nrLeaves(root, lv);
+  if (!root->isleaf) cout << root->info sp lv sp '\n';
 }
 
 int ladderize(node *root) {
@@ -447,15 +432,14 @@ int main() {
   //end of input
   clock_t tm=clock();
   if (zl == 'y') {
-    //rzb(root);
     rzb_nodes(root);
     rzn(root);
-    //sort_by_distance(root);
   }
   ladderize(root);
   write_newick(root);//give output nwk filename
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
+  printNodes(root);
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
@@ -467,6 +451,7 @@ int main() {
   vector<node_mean> means;
   calc_mean(root, means);
   sort(all(means));
+  //for (auto a : means) cerr << a.first sp a.second->info << endl;
   size_t msize = means.size();
   float gm;
   if (msize & 1) gm = means[msize/2].first;
@@ -537,7 +522,7 @@ int main() {
     }
   }
   */
-  cerr << "Do you want to find clusters with plpk(y/n)?\n";
+  cerr << "Do you want to find clusters with glpk(y/n)?\n";
   char cl;
   cin >> cl;
   if (cl == 'y') {
@@ -584,9 +569,10 @@ int main() {
     }
   }
   glp_load_matrix(mip, indx-1, ia, ja, ar);
+  glp_simplex(mip, NULL);
   glp_iocp parm;
   glp_init_iocp(&parm);
-  parm.presolve = GLP_ON;
+  //parm.presolve = GLP_ON;
   int err = glp_intopt(mip, &parm);
   cout << "Return value (should be 0): " << err << endl;
   cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;

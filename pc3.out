@@ -1,4 +1,205 @@
 Minimum nr of leaves: 5 Gamma:  1 FDR:  0.2
+121 2 
+127 2 
+124 5 
+123 6 
+131 2 
+129 4 
+128 6 
+116 2 
+115 3 
+114 2 
+110 2 
+109 4 
+108 5 
+73 2 
+106 2 
+74 2 
+94 2 
+93 3 
+66 4 
+65 7 
+101 2 
+105 2 
+96 11 
+91 2 
+92 2 
+89 5 
+88 2 
+87 3 
+84 3 
+83 2 
+81 4 
+79 8 
+78 12 
+77 17 
+50 2 
+45 2 
+59 2 
+63 2 
+31 3 
+56 3 
+62 2 
+61 2 
+60 4 
+26 2 
+29 2 
+22 9 
+21 10 
+41 3 
+38 7 
+37 8 
+35 10 
+13 52 
+6 102 
+5 104 
+4 109 
+3 113 
+2 116 
+0 134 
 size of means =  22 grand median = 0.00714786
 mad = 0.00106574
 size of filtered means = 17
+GLPK Simplex Optimizer, v4.57
+58 rows, 17 columns, 133 non-zeros
+*     0: obj =  -0.000000000e+00 inf =   0.000e+00 (17)
+*    14: obj =   1.209989529e+02 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+GLPK Integer Optimizer, v4.57
+58 rows, 17 columns, 133 non-zeros
+17 integer variables, all of which are binary
+Integer optimization begins...
++    14: mip =     not found yet <=              +inf        (1; 0)
++    16: >>>>>   1.160000000e+02 <=   1.190000000e+02   2.6% (2; 0)
++    17: >>>>>   1.190000000e+02 <=   1.190000000e+02   0.0% (1; 1)
++    17: mip =   1.190000000e+02 <=     tree is empty   0.0% (0; 3)
+INTEGER OPTIMAL SOLUTION FOUND
+Return value (should be 0): 0
+Nr of clustered leaves: 119
+108 :
+a/chicken/viet_nam/tmu006/2008_CLADE2.3.4.3
+a/guangxi/1/2008_CLADE2.3.4.3
+a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3
+a/vietnam/ut31394ii/2008_CLADE2.3.4.3
+
+6 :
+a/duck/ninh_binh/07-68/2007_CLADE2.3.4.3
+a/vietnam/ut31239/2007_CLADE2.3.4.3
+a/muscovy_duck/nam_dinh/07-87/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/48/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-120/2007_CLADE2.3.4.3
+a/muscovy_duck/son_la/07-85/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-47/2007_CLADE2.3.4.3
+a/muscovy_duck/ha_nam/07-47/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-57/07_CLADE2.3.4.3
+a/duck/vietnam/ncvd-56/07_CLADE2.3.4.3
+a/duck/vietnam/ncvd-111/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-112/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-65/07_CLADE2.3.4.3
+a/muscovy_duck/bac_gieng/07-66/2007_CLADE2.3.4.3
+a/chicken/bac_giang/07-74/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-51/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-110/2007_CLADE2.3.4.3
+a/vietnam/ut31203a/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-113/2007_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-114/2007_CLADE2.3.4.3
+a/vietnam/hn31388m1/2007_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-086/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/57/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-71/07_CLADE2.3.4.3
+a/duck/ha_tinh/07-53/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-81/07_CLADE2.3.4.3
+a/duck/vietnam/43/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-63/07_CLADE2.3.4.3
+a/duck/vietnam/ncvd-62/07_CLADE2.3.4.3
+a/muscovy_duck/ha_nam/07-84/2007_CLADE2.3.4.3
+a/chicken/ha_nam/07-83/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-50/07_CLADE2.3.4.3
+a/duck/nghe_an/07-49/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-014/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-084/2008_CLADE2.3.4.3
+a/chicken/viet_nam/tmu015/2008_CLADE2.3.4.3
+a/avian/vietnam/ncvd-132/2008_CLADE2.3.4.3
+a/avian/vietnam/ncvd-133/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-005/2008_CLADE2.3.4.3
+a/avian/vietnam/ncvd-124/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-041/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-024/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-028/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-006/2008_CLADE2.3.4.3
+a/duck/viet_nam/tmu005/2008_CLADE2.3.4.3
+a/chicken/viet_nam/tmu004/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-186/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-185/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-187/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-188/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/41/2007_CLADE2.3.4.3
+a/duck/nam_dinh/07-91/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-116/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-019/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-100/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-94/2007_CLADE2.3.4.3
+a/duck/vietnam/50/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-021/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-108/2007_CLADE2.3.4.3
+a/duck/vietnam/55/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-020/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-022/2008_CLADE2.3.4.3
+a/vietnam/ut31412ii/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-138/2008_CLADE2.3.4.3
+a/duck/thai_ninh/07-86/2007_CLADE2.3.4.3
+a/duck/nam_dinh/07-55/2007_CLADE2.3.4.3
+a/chicken/thai_binh/07-89/2007_CLADE2.3.4.3
+a/muscovy_duck/thai_binh/07-90/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-93/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-98/2007_CLADE2.3.4.3
+a/duck/vietnam/na114/2007_CLADE2.3.4.3
+a/duck/vietnam/na72/2007_CLADE2.3.4.3
+a/vietnam/ut31244iii/2007_CLADE2.3.4.3
+a/vietnam/hn31244/2007_CLADE2.3.4.3
+a/vietnam/ut31244ii/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-76/07_CLADE2.3.4.3
+a/duck/vietnam/ncvd-61/07_CLADE2.3.4.3
+a/duck/vietnam/ncvd-60/07_CLADE2.3.4.3
+a/vietnam/ut31312ii/2007_CLADE2.3.4.3
+a/viet_nam/hn31242/2007_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-029/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-a015/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-101/2007_CLADE2.3.4.3
+a/vietnam/ut31413ii/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-140/2008_CLADE2.3.4.3
+a/civet/vietnam/ncvd-004/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-002/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-146/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-030/2008_CLADE2.3.4.3
+a/muscovy_duck/viet_nam/tmu001/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-154/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-156/2008_CLADE2.3.4.3
+a/muscovy_duck/vietnam/ncvd-119/2007_CLADE2.3.4.3
+a/duck/vietnam/ncvd-003/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-105/2007_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-025/2008_CLADE2.3.4.3
+a/duck/vietnam/ncvd-118/2007_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-033/2008_CLADE2.3.4.3
+a/duck/vietnam/g12/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-027/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-039/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-279/2009_CLADE2.3.4.3
+
+123 :
+a/guangxi/1/2005_CLADE2.3.4
+a/duck/hunan/5191/2005_CLADE2.3.4
+a/duck/hunan/5106/2005_CLADE2.3.4
+a/duck/hunan/5128/2005_CLADE2.3.4
+a/duck/hunan/5170/2005_CLADE2.3.4
+a/duck/hunan/5146/2005_CLADE2.3.4
+
+128 :
+a/duck/yunnan/2535/2006_CLADE2.3.4
+a/goose/yunnan/2485/2006_CLADE2.3.4
+a/duck/yunnan/4873/2006_CLADE2.3.4
+a/goose/yunnan/4985/2006_CLADE2.3.4
+a/duck/yunnan/3332/2006_CLADE2.3.4
+a/goose/yunnan/3340/2006_CLADE2.3.4
+
