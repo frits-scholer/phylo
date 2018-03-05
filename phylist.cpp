@@ -9,6 +9,7 @@
 #include <utility>
 #include <iterator>
 #include <list>
+#include <iomanip>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
 #include "glpk.h"
@@ -17,6 +18,8 @@ using namespace std;
 #define all(t) begin(t), end(t)
 #define sp << " " <<
 #define tb << "\t" <<
+#define tb2 << "\t\t" <<
+#define tb3 << "\t\t\t" <<
 
 const float epsilon = 0.00001;
 const unsigned int MAX_COEFF_NR = 10000000;
@@ -89,7 +92,7 @@ Token_value get_token(istream& is) {
   }
 }
 
-node* build_tree(vector<node*>& leaves) {
+node* build_tree(nodevector& leaves) {
   cerr << "filename?\n";
   string fname;
   cin >> fname;
@@ -175,10 +178,10 @@ void rzn(nodelist& lst) {
 void append_stream(ostream& os, node* root) {
   if (root->isleaf) {os << root->info << ':' << root->distance;return;}
   os << '(';
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    if (it != begin(root->children)) os << ',';
-    append_stream(os, *it);
-  }
+  bool nfirst{false};
+  for_each(all(root->children),[&](node *nd){
+      if (nfirst) os << ','; else nfirst = true;
+      append_stream(os, nd);});
   os << ')';
   if (is_root(root)) os << ";";
   else os << ':' << root->distance;
@@ -200,18 +203,14 @@ void write_newick(node *root) {
 int nrLeaves(node *root) {
   if (root->isleaf) {root->nrleaves = 1;return 1;}
   int N=0;
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    N +=  nrLeaves(*it);
-  }
+  for_each(all(root->children),[&](node *nd){N +=  nrLeaves(nd);});
   root->nrleaves = N;
   return N;
 }
 
 void select_clades(node *root) {
   if (root->isleaf) return;
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    select_clades(*it);
-  }    
+  for_each(all(root->children),[](node *nd){select_clades(nd);});
   if (root->nrleaves >= ml ) root->selected = true;
   else root->selected = false;
   return;
@@ -255,21 +254,15 @@ float calc_distance(node* x, node* y) {
 }
 
 void calc_mean(node *root, vector<node_mean>& v) {
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    calc_mean(*it, v);
-  }
+  for_each(all(root->children),[&](node *nd){calc_mean(nd,v);});
   if (!(root->isleaf) && root->selected) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
-    //auto a = v.back();
-    //cerr << a.first sp a.second->info << endl;
   }
 }
 
 void printLeaves(node *root) {
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    printLeaves(*it);
-  }
+  for_each(all(root->children),[](node *nd){printLeaves(nd);});
   if (root->isleaf) cout << root->info << '\n';
 }
 
@@ -283,9 +276,7 @@ void printAncestors(node *root) {//prints all nontrivial ancestors
 }
 
 void printNodes(node *root) {
-  for (auto it = begin(root->children);it != end(root->children);it++) {
-    printNodes(*it);
-  }
+  for_each(all(root->children),[&](node *nd){printNodes(nd);});
   if (!root->isleaf) {
     cout << root->info sp root->children.size() sp ':';
     printAncestors(root);
@@ -353,6 +344,54 @@ void cleanup_merge_nodes() {
     mn->parent->children.splice(it, mn->children);
     mn->parent->children.remove(mn);
   }
+}
+
+void append_stream_nexus(ostream& os, node* root, map<string, string> taxanrs) {
+  if (root->isleaf) {os << taxanrs[root->info] << ':' << root->distance;return;}
+  os << '(';
+  bool nfirst{false};
+  for_each(all(root->children),[&](node *nd){
+      if (nfirst) os << ','; else nfirst = true;
+      append_stream_nexus(os, nd, taxanrs);});
+  os << ')';
+  if (is_root(root)) os << ";" << endl;
+  else os << ':' << root->distance;
+}
+
+void annotate(node *root, node *cluster, map<string, string>& taxanrs) {
+  for_each(all(root->children),[&](node *nd){annotate(nd, cluster, taxanrs);});
+  if (root->isleaf)
+    taxanrs[root->info] = taxanrs[root->info] + "[&CLUSTER=" + cluster->info + ']';
+}
+
+void write_nexus(node *root, nodevector& leaves, nodevector& clusters) {
+  cerr << "filename of output nexus file?\n";
+  string fname;
+  cin >> fname;
+  ofstream os(fname.c_str());
+  if (!os) {
+    cerr << "Could not open file\n";
+    return;
+  }
+  os << "#NEXUS" << endl << "Begin taxa;" << endl
+     tb "Dimensions ntax=" << leaves.size()
+     << ';' << endl tb2 "Taxlabels" << endl;
+  for_each(all(leaves),[&](node* l){os tb3 l->info << endl;});
+  os tb3 ';' << endl <<"End;" << endl
+	     << "Begin trees;" << endl tb "Translate" << endl;
+  map<string, string> taxanrs;
+  int i=0;
+  for_each(all(leaves),[&](node* l){
+      i++;
+      taxanrs[l->info]=to_string(i);
+      os tb2 right << i sp l->info << "," << endl;});
+  //annotate
+  for_each(all(clusters),[&](node* nd){annotate(nd, nd, taxanrs);});
+
+  os << ';' << endl << "tree TREE = ";
+  append_stream_nexus(os, root, taxanrs);
+  os << "End;" << endl;
+  os.close();
 }
 
 int main() {
@@ -521,9 +560,11 @@ int main() {
   int err = glp_intopt(mip, &parm);
   cout << "Return value (should be 0): " << err << endl;
   cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
+  nodevector clusters;
   for (int i=1;i<=N;i++) {
     if (glp_mip_col_val(mip, i) == 1 ) {
       cout << glp_get_col_name(mip, i) sp ":" << endl;
+      clusters.push_back(sel_nodes[i-1]);
       printLeaves(sel_nodes[i-1]);
       cout << endl;
     }
@@ -532,6 +573,7 @@ int main() {
   delete[] ia;
   delete[] ja;
   delete[] ar;
+  write_nexus(root, leaves, clusters);
   }
   show_event("total time", tm);
 
