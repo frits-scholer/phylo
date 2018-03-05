@@ -1,36 +1,23 @@
 Minimum nr of leaves: 3 Gamma:  1 FDR:  0.2
-a/duck/guangxi/4446/2005_CLADE2.3.4
-a/vietnam/ut30850/2005_CLADE2.3.4
-a/goose/yunnan/1155/2006_CLADE2.3.4
-a/duck/yunnan/2273/2006_CLADE2.3.4
-a/goose/guiyang/1147/2006_CLADE2.3.4
-a/goose/guiyang/1461/2006_CLADE2.3.4
-a/guangxi/1/2005_CLADE2.3.4
-a/duck/hunan/5191/2005_CLADE2.3.4
-a/duck/hunan/5106/2005_CLADE2.3.4
-a/duck/hunan/5128/2005_CLADE2.3.4
-a/duck/hunan/5170/2005_CLADE2.3.4
-a/duck/hunan/5146/2005_CLADE2.3.4
-a/duck/yunnan/2535/2006_CLADE2.3.4
-a/goose/yunnan/2485/2006_CLADE2.3.4
-a/duck/yunnan/4873/2006_CLADE2.3.4
-a/goose/yunnan/4985/2006_CLADE2.3.4
-a/goose/yunnan/3340/2006_CLADE2.3.4
-a/duck/yunnan/3332/2006_CLADE2.3.4
-a/muscovy_duck/vietnam/ncvd-52/2007_CLADE2.3.4.3
-a/duck/phu_tho/07-48/2007_CLADE2.3.4.3
-a/duck/vietnam/52/2007_CLADE2.3.4.3
-a/japanese_white-eye/hong_kong/737/2007_CLADE2.3.4.3
-a/house_crow/hong_kong/1203/2007_CLADE2.3.4.3
-a/avian/hong_kong/2372/2007_CLADE2.3.4.3
-a/scaly-breasted_munia/hong_kong/2572/2007_CLADE2.3.4.3
-a/chicken/viet_nam/tmu006/2008_CLADE2.3.4.3
-a/guangxi/1/2008_CLADE2.3.4.3
-a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3
-a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3
-a/vietnam/ut31394ii/2008_CLADE2.3.4.3
-a/chicken/vietnam/ncvd-20/2007_CLADE2.3.4.3
-a/chicken/vietnam/18129/2009_CLADE2.3.4.3
+size of means =  35 grand median = 0.00562325
+mad = 0.00197584
+size of filtered means = 26
+GLPK Simplex Optimizer, v4.57
+83 rows, 26 columns, 182 non-zeros
+*     0: obj =  -0.000000000e+00 inf =   0.000e+00 (26)
+*    22: obj =   1.210000000e+02 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+GLPK Integer Optimizer, v4.57
+83 rows, 26 columns, 182 non-zeros
+26 integer variables, all of which are binary
+Integer optimization begins...
++    22: mip =     not found yet <=              +inf        (1; 0)
++    22: >>>>>   1.210000000e+02 <=   1.210000000e+02   0.0% (1; 0)
++    22: mip =   1.210000000e+02 <=     tree is empty   0.0% (0; 1)
+INTEGER OPTIMAL SOLUTION FOUND
+Return value (should be 0): 0
+Nr of clustered leaves: 121
+6 :
 a/duck/ninh_binh/07-68/2007_CLADE2.3.4.3
 a/vietnam/ut31239/2007_CLADE2.3.4.3
 a/muscovy_duck/nam_dinh/07-87/2007_CLADE2.3.4.3
@@ -133,29 +120,29 @@ a/muscovy_duck/vietnam/ncvd-154/2008_CLADE2.3.4.3
 a/muscovy_duck/vietnam/ncvd-156/2008_CLADE2.3.4.3
 a/duck/vietnam/ncvd-030/2008_CLADE2.3.4.3
 a/muscovy_duck/viet_nam/tmu001/2008_CLADE2.3.4.3
-size of means =  35 grand median = 0.00562325
-mad = 0.00197584
-size of filtered means = 26
-GLPK Simplex Optimizer, v4.64
-83 rows, 26 columns, 182 non-zeros
-*     0: obj =  -0.000000000e+00 inf =   0.000e+00 (26)
-*    22: obj =   1.210000000e+02 inf =   0.000e+00 (0)
-OPTIMAL LP SOLUTION FOUND
-GLPK Integer Optimizer, v4.64
-83 rows, 26 columns, 182 non-zeros
-26 integer variables, all of which are binary
-Integer optimization begins...
-+    22: mip =     not found yet <=              +inf        (1; 0)
-+    22: >>>>>   1.210000000e+02 <=   1.210000000e+02   0.0% (1; 0)
-+    22: mip =   1.210000000e+02 <=     tree is empty   0.0% (0; 1)
-INTEGER OPTIMAL SOLUTION FOUND
-Return value (should be 0): 0
-Nr of clustered leaves: 121
-6 :
 
 115 :
+a/muscovy_duck/vietnam/ncvd-52/2007_CLADE2.3.4.3
+a/duck/phu_tho/07-48/2007_CLADE2.3.4.3
+a/duck/vietnam/52/2007_CLADE2.3.4.3
 
 122 :
+a/guangxi/1/2005_CLADE2.3.4
+a/duck/hunan/5191/2005_CLADE2.3.4
+a/duck/hunan/5106/2005_CLADE2.3.4
+a/duck/hunan/5128/2005_CLADE2.3.4
+a/duck/hunan/5170/2005_CLADE2.3.4
+a/duck/hunan/5146/2005_CLADE2.3.4
+a/duck/yunnan/2535/2006_CLADE2.3.4
+a/goose/yunnan/2485/2006_CLADE2.3.4
+a/duck/yunnan/4873/2006_CLADE2.3.4
+a/goose/yunnan/4985/2006_CLADE2.3.4
+a/goose/yunnan/3340/2006_CLADE2.3.4
+a/duck/yunnan/3332/2006_CLADE2.3.4
 
 109 :
+a/guangxi/1/2008_CLADE2.3.4.3
+a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3
+a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3
+a/vietnam/ut31394ii/2008_CLADE2.3.4.3
 
