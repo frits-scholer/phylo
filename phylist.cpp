@@ -385,7 +385,7 @@ int main() {
   write_newick(root);//give output nwk filename
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
-  printNodes(root);
+  //printNodes(root);
   select_clades(root);
   root->selected = true;
   //set up interleaf distances

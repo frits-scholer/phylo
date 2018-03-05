@@ -1,91 +1,36 @@
-Minimum nr of leaves: 5 Gamma:  1 FDR:  0.2
-121 2 :
-127 2 :124 123 122 
-124 4 :123 122 
-123 2 :122 
-131 2 :129 128 122 
-129 3 :128 122 
-128 3 :122 
-122 2 :
-116 2 :115 2 1 
-115 2 :2 1 
-114 2 :3 2 1 
-110 2 :109 108 4 3 2 1 
-109 3 :108 4 3 2 1 
-108 2 :4 3 2 1 
-73 2 :6 5 4 3 2 1 
-106 2 :6 5 4 3 2 1 
-74 2 :6 5 4 3 2 1 
-94 2 :93 6 5 4 3 2 1 
-93 2 :6 5 4 3 2 1 
-66 4 :65 6 5 4 3 2 1 
-65 4 :6 5 4 3 2 1 
-101 2 :96 6 5 4 3 2 1 
-105 2 :96 6 5 4 3 2 1 
-96 9 :6 5 4 3 2 1 
-91 2 :89 77 6 5 4 3 2 1 
-92 2 :89 77 6 5 4 3 2 1 
-89 3 :77 6 5 4 3 2 1 
-88 2 :87 78 77 6 5 4 3 2 1 
-87 2 :78 77 6 5 4 3 2 1 
-84 3 :79 78 77 6 5 4 3 2 1 
-83 2 :81 79 78 77 6 5 4 3 2 1 
-81 3 :79 78 77 6 5 4 3 2 1 
-79 3 :78 77 6 5 4 3 2 1 
-78 3 :77 6 5 4 3 2 1 
-77 2 :6 5 4 3 2 1 
-50 2 :13 6 5 4 3 2 1 
-59 2 :13 6 5 4 3 2 1 
-45 2 :13 6 5 4 3 2 1 
-63 2 :13 6 5 4 3 2 1 
-56 3 :13 6 5 4 3 2 1 
-31 3 :13 6 5 4 3 2 1 
-62 2 :60 13 6 5 4 3 2 1 
-61 2 :60 13 6 5 4 3 2 1 
-60 2 :13 6 5 4 3 2 1 
-41 3 :38 37 35 13 6 5 4 3 2 1 
-38 5 :37 35 13 6 5 4 3 2 1 
-37 2 :35 13 6 5 4 3 2 1 
-35 3 :13 6 5 4 3 2 1 
-29 2 :22 21 13 6 5 4 3 2 1 
-26 2 :22 21 13 6 5 4 3 2 1 
-22 7 :21 13 6 5 4 3 2 1 
-21 2 :13 6 5 4 3 2 1 
-13 23 :6 5 4 3 2 1 
-6 14 :5 4 3 2 1 
-5 3 :4 3 2 1 
-4 2 :3 2 1 
-3 4 :2 1 
-2 2 :1 
-1 1 :
-0 7 :
-size of means =  24 grand median = 0.00714786
-mad = 0.00115725
-size of filtered means = 18
-GLPK Simplex Optimizer, v4.64
-62 rows, 18 columns, 143 non-zeros
-*     0: obj =  -0.000000000e+00 inf =   0.000e+00 (18)
-*    15: obj =   1.209989666e+02 inf =   0.000e+00 (0)
-OPTIMAL LP SOLUTION FOUND
-GLPK Integer Optimizer, v4.64
-62 rows, 18 columns, 143 non-zeros
-18 integer variables, all of which are binary
-Integer optimization begins...
-+    15: mip =     not found yet <=              +inf        (1; 0)
-+    17: >>>>>   1.160000000e+02 <=   1.190000000e+02   2.6% (2; 0)
-+    18: >>>>>   1.190000000e+02 <=   1.190000000e+02   0.0% (1; 1)
-+    18: mip =   1.190000000e+02 <=     tree is empty   0.0% (0; 3)
-INTEGER OPTIMAL SOLUTION FOUND
-Return value (should be 0): 0
-Nr of clustered leaves: 119
-108 :
+Minimum nr of leaves: 3 Gamma:  1 FDR:  0.2
+a/duck/guangxi/4446/2005_CLADE2.3.4
+a/vietnam/ut30850/2005_CLADE2.3.4
+a/goose/yunnan/1155/2006_CLADE2.3.4
+a/duck/yunnan/2273/2006_CLADE2.3.4
+a/goose/guiyang/1147/2006_CLADE2.3.4
+a/goose/guiyang/1461/2006_CLADE2.3.4
+a/guangxi/1/2005_CLADE2.3.4
+a/duck/hunan/5191/2005_CLADE2.3.4
+a/duck/hunan/5106/2005_CLADE2.3.4
+a/duck/hunan/5128/2005_CLADE2.3.4
+a/duck/hunan/5170/2005_CLADE2.3.4
+a/duck/hunan/5146/2005_CLADE2.3.4
+a/duck/yunnan/2535/2006_CLADE2.3.4
+a/goose/yunnan/2485/2006_CLADE2.3.4
+a/duck/yunnan/4873/2006_CLADE2.3.4
+a/goose/yunnan/4985/2006_CLADE2.3.4
+a/goose/yunnan/3340/2006_CLADE2.3.4
+a/duck/yunnan/3332/2006_CLADE2.3.4
+a/muscovy_duck/vietnam/ncvd-52/2007_CLADE2.3.4.3
+a/duck/phu_tho/07-48/2007_CLADE2.3.4.3
+a/duck/vietnam/52/2007_CLADE2.3.4.3
+a/japanese_white-eye/hong_kong/737/2007_CLADE2.3.4.3
+a/house_crow/hong_kong/1203/2007_CLADE2.3.4.3
+a/avian/hong_kong/2372/2007_CLADE2.3.4.3
+a/scaly-breasted_munia/hong_kong/2572/2007_CLADE2.3.4.3
 a/chicken/viet_nam/tmu006/2008_CLADE2.3.4.3
 a/guangxi/1/2008_CLADE2.3.4.3
 a/quail/vietnam/ncvd-037/2008_CLADE2.3.4.3
 a/chicken/vietnam/ncvd-026/2008_CLADE2.3.4.3
 a/vietnam/ut31394ii/2008_CLADE2.3.4.3
-
-6 :
+a/chicken/vietnam/ncvd-20/2007_CLADE2.3.4.3
+a/chicken/vietnam/18129/2009_CLADE2.3.4.3
 a/duck/ninh_binh/07-68/2007_CLADE2.3.4.3
 a/vietnam/ut31239/2007_CLADE2.3.4.3
 a/muscovy_duck/nam_dinh/07-87/2007_CLADE2.3.4.3
@@ -188,18 +133,29 @@ a/muscovy_duck/vietnam/ncvd-154/2008_CLADE2.3.4.3
 a/muscovy_duck/vietnam/ncvd-156/2008_CLADE2.3.4.3
 a/duck/vietnam/ncvd-030/2008_CLADE2.3.4.3
 a/muscovy_duck/viet_nam/tmu001/2008_CLADE2.3.4.3
+size of means =  35 grand median = 0.00562325
+mad = 0.00197584
+size of filtered means = 26
+GLPK Simplex Optimizer, v4.64
+83 rows, 26 columns, 182 non-zeros
+*     0: obj =  -0.000000000e+00 inf =   0.000e+00 (26)
+*    22: obj =   1.210000000e+02 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+GLPK Integer Optimizer, v4.64
+83 rows, 26 columns, 182 non-zeros
+26 integer variables, all of which are binary
+Integer optimization begins...
++    22: mip =     not found yet <=              +inf        (1; 0)
++    22: >>>>>   1.210000000e+02 <=   1.210000000e+02   0.0% (1; 0)
++    22: mip =   1.210000000e+02 <=     tree is empty   0.0% (0; 1)
+INTEGER OPTIMAL SOLUTION FOUND
+Return value (should be 0): 0
+Nr of clustered leaves: 121
+6 :
+
+115 :
 
 122 :
-a/guangxi/1/2005_CLADE2.3.4
-a/duck/hunan/5191/2005_CLADE2.3.4
-a/duck/hunan/5106/2005_CLADE2.3.4
-a/duck/hunan/5128/2005_CLADE2.3.4
-a/duck/hunan/5170/2005_CLADE2.3.4
-a/duck/hunan/5146/2005_CLADE2.3.4
-a/duck/yunnan/2535/2006_CLADE2.3.4
-a/goose/yunnan/2485/2006_CLADE2.3.4
-a/duck/yunnan/4873/2006_CLADE2.3.4
-a/goose/yunnan/4985/2006_CLADE2.3.4
-a/goose/yunnan/3340/2006_CLADE2.3.4
-a/duck/yunnan/3332/2006_CLADE2.3.4
+
+109 :
 

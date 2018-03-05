@@ -9,6 +9,7 @@
 #include <utility>
 #include <iterator>
 #include <list>
+#include <iomanip>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
 #include "glpk.h"
@@ -17,6 +18,8 @@ using namespace std;
 #define all(t) begin(t), end(t)
 #define sp << " " <<
 #define tb << "\t" <<
+#define tb2 << "\t\t" <<
+#define tb3 << "\t\t\t" <<
 
 const float epsilon = 0.00001;
 const unsigned int MAX_COEFF_NR = 10000000;
@@ -36,24 +39,28 @@ map<string,int> node_indx;
 
 struct node;
 typedef vector<float> distribution;
-typedef vector<node*> nodelist;
+typedef list<node*> nodelist;
+typedef vector<node*> nodevector;
 typedef pair<float, node*> node_mean;
-
 
 struct node {
   node *parent;
-  node *child;
-  node *sibling;
+  nodelist children;
+  int nrleaves;
   float distance;
   string info;
   bool selected;
   bool isleaf;
   distribution D;//needed for KS
-  node(): parent(nullptr), child(nullptr), sibling(nullptr), selected(false),isleaf(false) {}
+  node(): parent(nullptr), nrleaves(0), selected(false), isleaf(false) {}
 };
 
-bool less_dist(const node* a, const node* b) {
-  return a->distance < b->distance;
+vector<pair<node*,node*>> zero_nodes;
+nodevector merge_nodes;
+
+bool ladder_sort(const node *a, node *b) {
+  return (a->nrleaves < b->nrleaves) ||
+    (a->nrleaves == b->nrleaves && a->distance < b->distance);
 }
 
 Token_value get_token(istream& is) {
@@ -85,7 +92,7 @@ Token_value get_token(istream& is) {
   }
 }
 
-node* build_tree(vector<node*>& leaves) {
+node* build_tree(nodevector& leaves) {
   cerr << "filename?\n";
   string fname;
   cin >> fname;
@@ -108,9 +115,10 @@ node* build_tree(vector<node*>& leaves) {
       A.push(cur_node);
       cur_node->info = to_string(internal_count);
       internal_count++;
-      cur_node->child = new node;
-      cur_node->child->parent = cur_node;
-      cur_node = cur_node->child;
+      nptr = new node;
+      nptr->parent = cur_node;
+      cur_node->children.push_back(nptr);
+      cur_node = nptr;
       break;
     case RP:
       cur_node = A.top();
@@ -127,10 +135,9 @@ node* build_tree(vector<node*>& leaves) {
     case COMMA:
       cur_node = A.top();
       nptr = new node;
-      nptr->sibling = cur_node->child;
-      cur_node->child = nptr;
-      cur_node->child->parent = cur_node;
-      cur_node = cur_node->child;
+      nptr->parent = cur_node;
+      cur_node->children.push_back(nptr);
+      cur_node = nptr;
       break;
     case END:
       cout << "error";
@@ -140,126 +147,40 @@ node* build_tree(vector<node*>& leaves) {
 }
   
 int nr_of_children(node *root) {
-  int n = 0;
-  node *nptr = root->child;
-  while (nptr) {
-    n++;
-    nptr = nptr->sibling;
-  }
-  return n;
+  return root->children.size();
 }
 
 bool is_root(node *root) {
   return root == root->parent;
 }
 
-void rzb_nodes(node *root) {
-  node *nptr = root->child;
-  while (nptr) {
-    node *sptr = nptr->sibling;//this might be invalidated
-    rzb_nodes(nptr);
-    nptr = sptr;
-  }
-  //a non-leaf
-  if (!root->isleaf) {
-    if (is_root(root) || root->distance > epsilon) return;
-    root->distance = 0;
-    //children become grandchildren
-    node *pptr = root->parent;
-    node *cptr = pptr->child;
-    node *dptr = root->child;
-    if (!dptr) return;
-    pptr->child = root->child;//first child becomes first grandchild
-    node *eptr;
-    while (dptr) {
-      eptr = dptr;
-      dptr->parent = pptr;//siblings of first child become grandchildren
-      dptr = dptr->sibling;
-    }
-    eptr->sibling = cptr;//new siblings become siblings of old siblings
-    root->child = nullptr;
+void rzb_nodes(nodelist& lst) {
+  for (auto nptr : lst) {
+    if (nptr->isleaf) continue;
+    rzb_nodes(nptr->children);
+    if (nptr->distance > epsilon) continue;
+    node *from = nptr;
+    node *to = nptr->parent;
+    while (!is_root(to) && to->distance <= epsilon) to = to->parent;
+    zero_nodes.push_back(make_pair(from, to));
   }
 }
-
-void sort_by_distance(node *root) {
-  if (root->isleaf) return;
-  //root is not a leaf
-  node *cptr = root->child;
-  while (cptr) {
-    sort_by_distance(cptr);
-    cptr = cptr->sibling;
+void rzn(nodelist& lst) {
+  for (auto nptr : lst) {
+    if (nptr->isleaf) continue;
+    rzn(nptr->children);
+    int nch = nr_of_children(nptr);
+    if (nch != 1) continue;
+    merge_nodes.push_back(nptr);
   }
-  cptr = root->child;
-  list<node*> a_list;
-  while (cptr) {
-    a_list.push_back(cptr);
-    cptr = cptr->sibling;
-  }
-  a_list.sort(less_dist);
-
-  auto it = begin(a_list);
-  root->child = *it;
-  while (it != end(a_list)) {
-    auto jt = it;
-    it++;
-    if (it != end(a_list)) (*jt)->sibling = *it;
-    else (*jt)->sibling = nullptr;
-  }
-
-}
-
-void rzn(node *root) {
-  if (root->isleaf) return;
-  //root is not a leaf
-  node *cptr = root->child;
-  while (cptr) {
-    node *dptr = cptr->sibling;
-    rzn(cptr);
-    cptr = dptr;
-  }
-  //at this point zero and one nodes of children are removed
-  int nch = nr_of_children(root);
-  if (nch > 1) return;//nothing more to do
-  node *pptr = root->parent;
-  node *dptr;
-  cptr = pptr->child;
-  if (nch == 0) {
-	if (cptr == root) {//reset child
-	  //cerr << "C";
-	  pptr->child = root->sibling;
-	  delete root;
-	  return;
-	}
-	while (cptr != root) {
-	  dptr = cptr;
-	  cptr = cptr->sibling;
-	}
-	dptr->sibling = root->sibling;
-	delete root;
-	return;
-  }
-  //case root has single child
-  dptr = root->child;
-  pptr->child = dptr;//child becomes grandchild
-  dptr->sibling = cptr;//new child becomes sibling of old siblings
-  dptr->parent = pptr;
-  dptr->distance = dptr->distance + root->distance;
-  while (cptr != root) {
-    dptr = cptr;
-    cptr = cptr->sibling;
-  }
-  dptr->sibling = root->sibling;
-  delete root;
 }
 
 void append_stream(ostream& os, node* root) {
   if (root->isleaf) {os << root->info << ':' << root->distance;return;}
   os << '(';
-  node *nptr = root->child;
-  while (nptr) {
-    append_stream(os, nptr);
-    nptr = nptr->sibling;
-    if (nptr) os << ',';
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    if (it != begin(root->children)) os << ',';
+    append_stream(os, *it);
   }
   os << ')';
   if (is_root(root)) os << ";";
@@ -279,17 +200,24 @@ void write_newick(node *root) {
   os.close();
 }
 
-int select_clades(node *root) {//returns nr of leaves
-  if (root->isleaf) return 1;
-  int nr_leaves{0};
-  node *cptr = root->child;
-  while (cptr) {
-    nr_leaves += select_clades(cptr);
-    cptr = cptr->sibling;
+int nrLeaves(node *root) {
+  if (root->isleaf) {root->nrleaves = 1;return 1;}
+  int N=0;
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    N +=  nrLeaves(*it);
   }
-  if (nr_leaves >= ml ) root->selected = true;
+  root->nrleaves = N;
+  return N;
+}
+
+void select_clades(node *root) {
+  if (root->isleaf) return;
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    select_clades(*it);
+  }    
+  if (root->nrleaves >= ml ) root->selected = true;
   else root->selected = false;
-  return nr_leaves;
+  return;
 }
 
 float ancestor_distance(node* z, node* w) {//w is descendant of z
@@ -330,33 +258,49 @@ float calc_distance(node* x, node* y) {
 }
 
 void calc_mean(node *root, vector<node_mean>& v) {
-  node *cptr = root->child;
-  while (cptr) {
-    calc_mean(cptr, v);
-    cptr = cptr->sibling;
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    calc_mean(*it, v);
   }
   if (!(root->isleaf) && root->selected) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
+    //auto a = v.back();
+    //cerr << a.first sp a.second->info << endl;
   }
 }
 
 void printLeaves(node *root) {
-  node *cptr = root->child;
-  while (cptr) {
-    printLeaves(cptr);
-    cptr = cptr->sibling;
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    printLeaves(*it);
   }
   if (root->isleaf) cout << root->info << '\n';
 }
 
-void nrLeaves(node *root, int& lv) {
-  node *cptr = root->child;
-  while (cptr) {
-    nrLeaves(cptr, lv);
-    cptr = cptr->sibling;
+void printAncestors(node *root) {//prints all nontrivial ancestors
+  node* z = root;
+  while (true) {
+    z = z->parent;
+    if (is_root(z)) break;
+    cout << z->info << " ";
   }
-  if (root->isleaf) lv++;
+}
+
+void printNodes(node *root) {
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    printNodes(*it);
+  }
+  if (!root->isleaf) {
+    cout << root->info sp root->children.size() sp ':';
+    printAncestors(root);
+    cout << endl;
+  }
+}
+
+void ladderize(node *root) {
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    ladderize(*it);
+  }
+  root->children.sort(ladder_sort);
 }
 
 bool is_ancestor(node* x, node* y) {//x is ancestor of y
@@ -369,21 +313,10 @@ bool is_ancestor(node* x, node* y) {//x is ancestor of y
 } 
 
 void preSort(node *root) {
-  node *cptr = root->child;
-  while (cptr) {
-    preSort(cptr);
-    cptr = cptr->sibling;
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    preSort(*it);
   }
   if (!(root->isleaf)) sort(all(root->D));
-}
-
-void printAncestors(node *root) {//prints all nontrivial ancestors
-  node* z = root;
-  while (true) {
-    z = z->parent;
-    if (is_root(z)) break;
-    cout << z->info << " ";
-  }
 }
 
 void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx) {
@@ -404,8 +337,61 @@ void show_event(string s, clock_t& tm) {
   cerr <<  "\t" << s << " " << (double) tm/CLOCKS_PER_SEC << " s "<< endl;
 }
 
+void cleanup_zero_nodes() {
+  for (auto zn : zero_nodes) {
+    auto it = begin(zn.second->children);//position to move to
+    for (auto nptr : zn.first->children) nptr->parent = zn.second;
+    zn.second->children.splice(it, zn.first->children);
+    zn.first->parent->children.remove(zn.first);
+  }
+}
+
+void cleanup_merge_nodes() {
+  for (auto mn : merge_nodes) {
+    auto it = begin(mn->parent->children);//position to move to
+    for (auto nptr : mn->children) {
+      nptr->parent = mn->parent;
+      nptr->distance += mn->distance;
+    }
+    mn->parent->children.splice(it, mn->children);
+    mn->parent->children.remove(mn);
+  }
+}
+
+void append_stream_nexus(ostream& os, node* root) {
+  if (root->isleaf) {os << root->info << ':' << root->distance;return;}
+  os << '(';
+  for (auto it = begin(root->children);it != end(root->children);it++) {
+    if (it != begin(root->children)) os << ',';
+    append_stream_nexus(os, *it);
+  }
+  os << ')';
+  if (is_root(root)) os << ";";
+  else os << ':' << root->distance;
+}
+
+void write_nexus(node *root, nodevector& leaves) {
+  cerr << "filename of output nexus file?\n";
+  string fname;
+  cin >> fname;
+  ofstream os(fname.c_str());
+  if (!os) {
+    cerr << "Could not open file\n";
+    return;
+  }
+  map<string, int> taxanrs;
+  os << "NEXUS\nBegin taxa;\n\tDimensions ntax=" << leaves.size() << ";\n\t\tTaxlabels\n";
+  for_each(all(leaves),[&](node* l){os tb3 l->info << endl;});
+  os tb3 ";\nEnd;\nBegin trees;\n\tTranslate\n";
+  int i=0;
+  for_each(all(leaves),[&](node* l){taxanrs[l->info]=++i;os tb2 right << i sp l->info << "," << endl;});
+  os << ";\ntree TREE = ";
+  //append_stream(os, root);
+  os.close();
+}
+
 int main() {
-  nodelist leaves;
+  nodevector leaves;
   node *root = build_tree(leaves);
   if (!root) return 1;
   cerr << "Do you want to remove zero length branches?(y/n)\n";
@@ -422,14 +408,19 @@ int main() {
   //end of input
   clock_t tm=clock();
   if (zl == 'y') {
-    //rzb(root);
-    rzb_nodes(root);
-    rzn(root);
-    sort_by_distance(root);
+    for (auto chld : root->children) {
+      rzb_nodes(chld->children);
+    }
+    cleanup_zero_nodes();
+    rzn(root->children);
+    cleanup_merge_nodes();
   }
+  nrLeaves(root);
+  ladderize(root);
   write_newick(root);//give output nwk filename
   cout << "Minimum nr of leaves:" sp ml sp "Gamma: " sp gamma sp "FDR: " sp FDR << endl;
   //start timer
+  printLeaves(root);
   select_clades(root);
   root->selected = true;
   //set up interleaf distances
@@ -441,6 +432,7 @@ int main() {
   vector<node_mean> means;
   calc_mean(root, means);
   sort(all(means));
+  //for (auto a : means) cerr << a.first sp a.second->info << endl;
   size_t msize = means.size();
   float gm;
   if (msize & 1) gm = means[msize/2].first;
@@ -458,7 +450,7 @@ int main() {
   cout << "size of filtered means = " << means.size() << endl;
   //presort all data
   preSort(root);
-  nodelist sel_nodes;
+  nodevector sel_nodes;
   for_each(means.rbegin(),means.rend(),[&](node_mean m){sel_nodes.push_back(m.second);});
   vector<bool> sel;
   vector<float> p;
@@ -511,7 +503,7 @@ int main() {
     }
   }
   */
-  cerr << "Do you want to find clusters with plpk(y/n)?\n";
+  cerr << "Do you want to find clusters with glpk(y/n)?\n";
   char cl;
   cin >> cl;
   if (cl == 'y') {
@@ -524,8 +516,7 @@ int main() {
   //set object
   for (int i=1;i<=N;i++) {
     node_indx[sel_nodes[i-1]->info] = indx;indx++;
-    int lv{0};
-    nrLeaves(sel_nodes[i-1], lv);
+    int lv = sel_nodes[i-1]->nrleaves;
     glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
     glp_set_col_kind(mip, i, GLP_BV);
     glp_set_obj_coef(mip, i, lv);
@@ -557,18 +548,20 @@ int main() {
       isel++;
     }
   }
-  glp_simplex(mip, NULL);
   glp_load_matrix(mip, indx-1, ia, ja, ar);
+  glp_simplex(mip, NULL);
   glp_iocp parm;
   glp_init_iocp(&parm);
   //parm.presolve = GLP_ON;
   int err = glp_intopt(mip, &parm);
   cout << "Return value (should be 0): " << err << endl;
   cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
+  nodevector clusters;
   for (int i=1;i<=N;i++) {
     if (glp_mip_col_val(mip, i) == 1 ) {
       cout << glp_get_col_name(mip, i) sp ":" << endl;
-      printLeaves(sel_nodes[i-1]);
+      clusters.push_back(sel_nodes[i-1]);
+      //printLeaves(sel_nodes[i-1]);
       cout << endl;
     }
   }
@@ -577,6 +570,7 @@ int main() {
   delete[] ja;
   delete[] ar;
   }
+  write_nexus(root,leaves);
   show_event("total time", tm);
 
 }
