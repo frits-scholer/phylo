@@ -412,9 +412,7 @@ int main() {
   //end of input
   clock_t tm=clock();
   if (zl == 'y') {
-    for (auto chld : root->children) {
-      rzb_nodes(chld->children);
-    }
+    rzb_nodes(root->children);
     cleanup_zero_nodes();
     rzn(root->children);
     cleanup_merge_nodes();
