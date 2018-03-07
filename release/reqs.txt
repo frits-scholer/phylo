@@ -1,0 +1,22 @@
+Attached is an example of a multi-run with different parameters input that Edy is using right now. 
+Line 1: Input tree 
+Line 2: y/n to collapse zero branch length nodes 
+Line 3 onwards: parameters separated by commas - min cluster size,fdr cut-off,gamma. Each parameter set is separated by a newline. 
+
+For the reordered newick tree and final output nexus tree output, we can have an appended name with parameter information such as: 
+reordered_example.nwk 
+phyclip_cs3_fdr0.2_gam1.0_example.tre
+
+The output statistics we need to calculate for each parameter includes: 
+1) Number of sequences clustered by solver 
+2) % of total sequences clustered 
+3) Number of clusters selected by solver. 
+4) Mean of mean pairwise distances of clusters selected.
+5) Standard deviation of mean pairwise distances of clusters selected.  
+6) Mean of the median pairwise distances of clusters selected. 
+7) Standard deviation of the median pairwise distances of clusters selected.
+8) Mean of the inter-cluster distances between clusters selected. 
+9) Standard deviation of inter-cluster distances between clusters selected. 
+10) Median of inter-cluster distances between clusters selected.
+11) Median absolute deviation (MAD) of inter-cluster distances between clusters selected. 
+
