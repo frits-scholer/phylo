@@ -1,14 +1,19 @@
-�1 Introduction I/O parameters
+§1 Introduction I/O parameters
 
 Line 1: Input tree 
 Line 2: y/n to collapse zero branch length nodes 
-Line 3 onwards: parameters separated by commas - min cluster size,fdr cut-off,gamma.
+Line 4 onwards: parameters separated by commas - min cluster size,fdr cut-off,gamma.
 Each parameter set is separated by a newline. 
 
 For the reordered newick tree and final output nexus tree output,
 we can have an appended name with parameter information such as: 
 reordered_example.nwk 
 phyclip_cs3_fdr0.2_gam1.0_example.tre
+phyclip_cs3_fdr0.2_gam1.0_example.txt
+
+The txt file contains:
+taxa tab cluster
+leafname clustername
 
 The output statistics we need to calculate for each parameter includes: 
 1) Number of sequences clustered by solver 
@@ -23,7 +28,7 @@ The output statistics we need to calculate for each parameter includes:
 10) Median of inter-cluster distances between clusters selected.
 11) Median absolute deviation (MAD) of inter-cluster distances between clusters selected. 
 
-�2 Proposed changes
+§2 Proposed changes
 
 User input:
      name of input parameter file e.g. ex1.in
@@ -32,6 +37,7 @@ User input:
 Input parameter file specs:
      Line 3 and onwards: parameter set separated by spaces or tabs
 
+temp.out for nodes clustered for glpk and selected for gurobi
 Output parameter file specs:
     Line 1 and onward:
     	 column 1: name of nexus formatted tree file based on info on line 1
@@ -41,3 +47,10 @@ Output parameter file specs:
 	 column 5 onward: items 1-11
 
 Output parameters are tab-delimited to faciltate converting to csv or xlsx format
+
+
+§3 Gurobi
+
+Input is the same
+
+Output
