@@ -34,7 +34,7 @@ Input parameter file specs:
 
 Output parameter file specs:
     Line 1 and onward:
-    	 column 1: name of nexus formatted tree file based on info on line
+    	 column 1: name of nexus formatted tree file based on info on line 1
 	 column 2: cs
 	 column 3: fdr cut-off
 	 column 4: gamma
