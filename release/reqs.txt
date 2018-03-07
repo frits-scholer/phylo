@@ -1,9 +1,12 @@
-Attached is an example of a multi-run with different parameters input that Edy is using right now. 
+§1 Introduction I/O parameters
+
 Line 1: Input tree 
 Line 2: y/n to collapse zero branch length nodes 
-Line 3 onwards: parameters separated by commas - min cluster size,fdr cut-off,gamma. Each parameter set is separated by a newline. 
+Line 3 onwards: parameters separated by commas - min cluster size,fdr cut-off,gamma.
+Each parameter set is separated by a newline. 
 
-For the reordered newick tree and final output nexus tree output, we can have an appended name with parameter information such as: 
+For the reordered newick tree and final output nexus tree output,
+we can have an appended name with parameter information such as: 
 reordered_example.nwk 
 phyclip_cs3_fdr0.2_gam1.0_example.tre
 
@@ -20,3 +23,21 @@ The output statistics we need to calculate for each parameter includes:
 10) Median of inter-cluster distances between clusters selected.
 11) Median absolute deviation (MAD) of inter-cluster distances between clusters selected. 
 
+§2 Proposed changes
+
+User input:
+     name of input parameter file e.g. ex1.in
+     name of primary output file e.g. ex1.txt
+     
+Input parameter file specs:
+     Line 3 and onwards: parameter set separated by spaces or tabs
+
+Output parameter file specs:
+    Line 1 and onward:
+    	 column 1: name of nexus formatted tree file based on info on line
+	 column 2: cs
+	 column 3: fdr cut-off
+	 column 4: gamma
+	 column 5 onward: items 1-11
+
+Output parameters are tab-delimited to faciltate converting to csv or xlsx format
