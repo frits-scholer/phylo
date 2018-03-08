@@ -4,7 +4,7 @@ User input:
 name of input file e.g. ex1.in
      
 Input file
-Line 1: Name of input tree file (e.g. example.nwk)
+Line 1: Name of rooted input tree file (e.g. example.nwk)
 Line 2: y/n to collapse zero branch length nodes
 Line 3: GLPK or Gurobi
 Line 4 onwards: parameters separated by whitespace:
@@ -13,16 +13,16 @@ Each parameter set is separated by a newline.
 
 Output files:
 reordered_example.nwk 
-phyclip_cs3_fdr0.2_gam1.0_example.tre
-phyclip_cs3_fdr0.2_gam1.0_example.txt
-phyclip_cs3_fdr0.2_gam1.0_example.csv
+phyclip_cs3_fdr0.2_gam1.0_example.tre - for each parameter set
+phyclip_cs3_fdr0.2_gam1.0_example.txt - for each parameter set 
+phyclip_clustering_statistics.csv (Consolidated file with clustering statistics for all parameter sets)
 
 The tre files contain:
-clustered tree in nexus format
+clustered tree in nexus format with cluster annotations
 
 The txt files contain:
-taxa tab cluster
-leafname clustername
+taxa {tab} cluster 
+leafname {tab} clustername
 
 The csv files contain
 column 1: cs
@@ -42,24 +42,31 @@ next 11 statistics columns:
 11) Median absolute deviation (MAD) of inter-cluster distances between clusters selected. 
 
 Intermediate temporary files
-*.stats
+*.stats (for each parameter set) 
 needed variables for statistical analysis
 Number of clustered sequences(1), percentage(2), number of selected clusters(3)
-Nnnn: space delimited interleaf distances of clustered nodes
-NnnnNnnn: interleaf distances of selected clusters(4-11)
+Nnnn: space delimited interleaf distance distribution of clustered node N (for calulation of 4-7)
+InnnJnnn: inter-NODE distance of selected clusters I and J (for calculation of 8-11)
 
 *.tmp
 contains ancestors and q values of selected nodes for the gurobi solver
-Nnnn: space delimited selected ancestors
+Nnnn: space delimited selected ancestors of N
 ...
-InnnJnnnQfff
+InnnJnnnQfff (Q value of node I and J)
 ...
-Nnnn: space delimited interleaf distances of selected nodes
-NnnnNnnn: interleaf distances of selected nodes
+Nnnn: space delimited interleaf distances of selected node N
+InnnJnnn: inter-NODE distances of selected nodes I and J
 
 §2 Flowchart
 
-Input ---> Tree parsing in C++
-      ---> example.nwk
-      ---> (gurobi *.tmp ---> python --->) *.txt *.tre *.stats
-      ---> python ---> *.csv
+Python shell ---> Input 
+             ---> Tree parsing in C++
+             ---> reordered_example.nwk
+             ---> (gurobi *.tmp ---> python --->) *.txt *.tre *.stats
+             ---> python ---> *.csv
+§3 Notes
+
+#include "glpk.h" might give problems
+conditionally include depending on input
+
+
