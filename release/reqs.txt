@@ -6,8 +6,7 @@ name of input file e.g. ex1.in
 Input file
 Line 1: Name of rooted input tree file (e.g. example.nwk)
 Line 2: y/n to collapse zero branch length nodes
-Line 3: GLPK or Gurobi
-Line 4 onwards: parameters separated by whitespace:
+Line 3 onwards: parameters separated by whitespace:
      min cluster size [space] fdr cut-off [space] gamma
 Each parameter set is separated by a newline. 
 
@@ -66,7 +65,6 @@ Python shell ---> Input
              ---> python ---> *.csv
 §3 Notes
 
-#include "glpk.h" might give problems
-conditionally include depending on input
+Have 2 .cpp files for glpk and gurobi to faciltate compile and link
 
 

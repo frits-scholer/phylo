@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <cctype>
 #include <map>
 #include <utility>
@@ -33,7 +34,6 @@ Token_value curr_tok=END;
 string string_value;
 float number_value;
 
-map<string,int> node_indx;
 
 struct node;
 typedef vector<float> distribution;
@@ -284,7 +284,7 @@ void preSort(node *root) {
   if (!(root->isleaf)) sort(all(root->D));
 }
 
-void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx) {
+void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx, map<string,int>& node_indx) {
   node* z = root;
   do {
     z = z->parent;
@@ -323,7 +323,7 @@ void cleanup_merge_nodes() {
   }
 }
 
-void append_stream_nexus(ostream& os, node* root, map<string, string> taxanrs) {
+void append_stream_nexus(ostream& os, node* root, map<string, string>& taxanrs) {
   if (root->isleaf) {os << taxanrs[root->info] << ':' << root->distance;return;}
   os << '(';
   bool nfirst{false};
@@ -387,10 +387,6 @@ int main() {
   clock_t tm=clock();
   char zl;
   is >> zl;//input collapse zerolength
-  string solver;
-  is >> solver;
-  bool glpk;
-  if (solver == "GLPK" || solver == "glpk") glpk = true; else glpk = false;//input solver
   //Start looping to complete the input
   vector<int> cs;vector<float> fdr;vector<float> gamma;
   while (is) {
@@ -477,83 +473,80 @@ int main() {
     vector<float> q(p.size());
     bh_fdr(p,q);
     //generate output filename
-    string fname_prefix = "phyclip_";
-    fname_prefix += "cs" + to_string(cs[t])
-      + "_fdr" + to_string(fdr[t])
-      + "_gam" + to_string(gamma[t]) + "_"
-      + tree_name + ".";
-    if (!glpk) {//gurobi
-      //output to .tmp file
+    stringstream ss;
+    ss.str("phyclip_");
+    ss << "cs" << showpoint  << cs[t]
+       << "_fdr" << setprecision(1) << fdr[t]
+       << "_gam" << setprecision(2) << gamma[t] << "_" << tree_name << ".";
+    string fname_prefix = ss.str();
+    glp_prob *mip = glp_create_prob();
+    glp_set_prob_name(mip, "cluster");
+    glp_set_obj_dir(mip, GLP_MAX);
+    glp_add_cols(mip, N);
+    long indx{1};
+    //set object
+    map<string,int> node_indx;
+    for (int i=1;i<=N;i++) {
+      node_indx[sel_nodes[i-1]->info] = indx;indx++;
+      int lv = sel_nodes[i-1]->nrleaves;
+      glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
+      glp_set_col_kind(mip, i, GLP_BV);
+      glp_set_obj_coef(mip, i, lv);
     }
-    else {//glpk
-      glp_prob *mip = glp_create_prob();
-      glp_set_prob_name(mip, "cluster");
-      glp_set_obj_dir(mip, GLP_MAX);
-      glp_add_cols(mip, N);
-      long indx{1};
-      //set object
-      for (int i=1;i<=N;i++) {
-	node_indx[sel_nodes[i-1]->info] = indx;indx++;
-	int lv = sel_nodes[i-1]->nrleaves;
-	glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
-	glp_set_col_kind(mip, i, GLP_BV);
-	glp_set_obj_coef(mip, i, lv);
-      }
-      int *ia = new int [1+MAX_COEFF_NR];
-      int *ja = new int [1+MAX_COEFF_NR];
-      double *ar = new double [1+MAX_COEFF_NR];
-      glp_add_rows(mip, N);
-      indx = 1;
-      for (int i=1;i<=N;i++) {
-	glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
-	ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
-	if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx);
-      }
-      auto itq = begin(q);
-      auto isel = begin(sel);
-      int row_n = N + 1;
-      for (int i = 1;i < N;i++) {
-	for (int j = 0;j < i;j++) {
-	  if (*isel) {
-	    glp_add_rows(mip, 1);//add constraint row
-	    glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + fdr[t] - *itq);
-	    ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
-	    ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
-	    row_n++;
-	    itq++;
-	  }
-	  isel++;
-	}
-      }
-      glp_load_matrix(mip, indx-1, ia, ja, ar);
-      glp_simplex(mip, NULL);
-      glp_iocp parm;
-      glp_init_iocp(&parm);
-      int err = glp_intopt(mip, &parm);
-      cout << "Return value (should be 0): " << err << endl;
-      cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
-      nodevector clusters;
-      for (int i=1;i<=N;i++) {
-	if (glp_mip_col_val(mip, i) == 1 ) {
-	  //cout << glp_get_col_name(mip, i) sp ":" << endl;
-	  clusters.push_back(sel_nodes[i-1]);
-	  //printLeaves(sel_nodes[i-1]);
-	  //cout << endl;
-	}
-      }
-      glp_delete_prob(mip);
-      delete[] ia;
-      delete[] ja;
-      delete[] ar;
-      fname = fname_prefix + "tre";
-      ofstream os(fname.c_str());
-      if (!os) {
-	cerr << "Error: could not create a nexus file\n";
-	return 1;
-      }
-      write_nexus(os, root, leaves, clusters);
-      os.close();
+    int *ia = new int [1+MAX_COEFF_NR];
+    int *ja = new int [1+MAX_COEFF_NR];
+    double *ar = new double [1+MAX_COEFF_NR];
+    glp_add_rows(mip, N);
+    indx = 1;
+    for (int i=1;i<=N;i++) {
+      glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
+      ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
+      if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx, node_indx);
     }
+    auto itq = begin(q);
+    auto isel = begin(sel);
+    int row_n = N + 1;
+    for (int i = 1;i < N;i++) {
+      for (int j = 0;j < i;j++) {
+	if (*isel) {
+	  glp_add_rows(mip, 1);//add constraint row
+	  glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + fdr[t] - *itq);
+	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
+	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
+	  row_n++;
+	  itq++;
+	}
+	isel++;
+      }
+    }
+    glp_load_matrix(mip, indx-1, ia, ja, ar);
+    glp_simplex(mip, NULL);
+    glp_iocp parm;
+    glp_init_iocp(&parm);
+    int err = glp_intopt(mip, &parm);
+    cout << "Return value (should be 0): " << err << endl;
+    cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
+    nodevector clusters;
+    for (int i=1;i<=N;i++) {
+      if (glp_mip_col_val(mip, i) == 1 ) {
+	//cout << glp_get_col_name(mip, i) sp ":" << endl;
+	clusters.push_back(sel_nodes[i-1]);
+	//printLeaves(sel_nodes[i-1]);
+	//cout << endl;
+      }
+    }
+    glp_delete_prob(mip);
+    delete[] ia;
+    delete[] ja;
+    delete[] ar;
+    fname = fname_prefix + "tre";
+    ofstream os(fname.c_str());
+    if (!os) {
+      cerr << "Error: could not create a nexus file\n";
+      return 1;
+    }
+    write_nexus(os, root, leaves, clusters);
+    os.close();
   }
   /*
   //auxiliary output
