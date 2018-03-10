@@ -20,7 +20,7 @@ The tre files contain:
 clustered tree in nexus format with cluster annotations
 
 The txt files contain:
-taxa {tab} cluster 
+taxa {tab} cluster
 leafname {tab} clustername
 
 The csv files contain

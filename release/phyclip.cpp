@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #include <stack>
 #include <vector>
 #include <algorithm>
@@ -90,7 +91,12 @@ Token_value get_token(istream& is) {
   }
 }
 
-node* build_tree(nodevector& leaves, istream& is) {
+node* build_tree(const string& tree_name, nodevector& leaves) {
+  ifstream is(tree_name);//open nwk file
+  if (!is) {
+    cerr << "Error: could not open tree file\n";
+    exit(EXIT_FAILURE);
+  }
   node *root = new node;
   node *cur_node = root;
   root->parent = root;
@@ -133,6 +139,10 @@ node* build_tree(nodevector& leaves, istream& is) {
       cerr << "internal error in build_tree";
     }
   }
+  if (!root) {
+    cerr << "Error: could not construct input tree\n";
+    exit(EXIT_FAILURE);
+  }
   return root;
 }
   
@@ -164,7 +174,6 @@ void rzn(nodelist& lst) {
     merge_nodes.push_back(nptr);
   }
 }
-
 void append_stream(ostream& os, node* root) {
   if (root->isleaf) {os << root->info << ':' << root->distance;return;}
   os << '(';
@@ -175,6 +184,15 @@ void append_stream(ostream& os, node* root) {
   os << ')';
   if (is_root(root)) os << ";";
   else os << ':' << root->distance;
+}
+
+void write_newick(const string& tname, node* root) {
+  ofstream os(tname);
+  if (!os) {
+    cerr << "Error: could not open output file\n";
+    exit(EXIT_FAILURE);
+  }
+  append_stream(os, root);
 }
 
 int nrLeaves(node *root) {
@@ -238,9 +256,9 @@ void calc_mean(node *root, vector<node_mean>& v) {
   }
 }
 
-void printLeaves(node *root) {
-  for_each(all(root->children),[](node *nd){printLeaves(nd);});
-  if (root->isleaf) cout << root->info << '\n';
+void printLeaves(node *root, node *cl, map<node*,node*>& tc) {
+  for_each(all(root->children),[&](node *nd){printLeaves(nd, cl, tc);});
+  if (root->isleaf) tc[root] = cl;
 }
 
 void printAncestors(node *root) {//prints all nontrivial ancestors
@@ -341,9 +359,15 @@ void annotate(node *root, node *cluster, map<string, string>& taxanrs) {
     taxanrs[root->info] = taxanrs[root->info] + "[&CLUSTER=" + cluster->info + ']';
 }
 
-void write_nexus(ostream& os, node *root, nodevector& leaves, nodevector& clusters) {
+void write_nexus(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+  string fn = fname_prefix + "tre";
+  ofstream os(fn);
+  if (!os) {
+    cerr << "Error: could not create a nexus file\n";
+    exit(EXIT_FAILURE);
+  }
   os << "#NEXUS" << endl << "Begin taxa;" << endl
-     tb "Dimensions ntax=" << leaves.size()
+    tb "Dimensions ntax=" << leaves.size()
      << ';' << endl tb2 "Taxlabels" << endl;
   for_each(all(leaves),[&](node* l){os tb3 l->info << endl;});
   os tb3 ';' << endl <<"End;" << endl
@@ -361,29 +385,58 @@ void write_nexus(ostream& os, node *root, nodevector& leaves, nodevector& cluste
   os << "End;" << endl;
 }
 
+void write_txt(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+    string fn = fname_prefix + "txt";
+    ofstream os(fn);
+    if (!os) {
+      cerr << "Error: could not create a txt file\n";
+     exit(EXIT_FAILURE);
+    }
+    map<node*, node*> taxaclusters;
+    for_each(all(clusters),[&](node* cl){printLeaves(cl, cl, taxaclusters);});
+    os << setw(60) << left << "taxa" tb "cluster" << endl;
+    for_each(all(leaves),[&](node* nl){os << setw(60) << nl->info tb setw(4) <<
+	  (taxaclusters[nl]?taxaclusters[nl]->info:"unclustered") << endl;});
+}
+
+void write_stats(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+    string fn = fname_prefix + "stats";
+    ofstream os(fn);
+    if (!os) {
+      cerr << "Error: could not create a stats file\n";
+     exit(EXIT_FAILURE);
+    }
+    int nr_seq_cl = accumulate(all(clusters),0,[&](int S, node *nd){return S + nd->nrleaves;});
+    os << nr_seq_cl << endl
+       << setprecision(3)  << (nr_seq_cl*100.0)/leaves.size() << endl
+       << clusters.size() << endl;
+    ostream_iterator<float> osf(os, " ");
+    for_each(all(clusters),[&](node* cl){
+	os << 'N' << cl->info << ": ";
+	copy(all(cl->D),osf);
+	os << endl;
+      });
+    for (unsigned int j = 1;j < clusters.size();j++) {
+    for (unsigned int i = 0;i < j;i++) {
+      os << 'I' << clusters[i]->info << 'J' << clusters[j]->info << ':'
+	   << calc_distance(clusters[i], clusters[j]) << endl;
+    }
+  }
+}
+
 int main() {
   cout << "Please enter name of file with the input parameters:\n";
   string fname;
   cin >> fname;
-  ifstream is(fname.c_str());
+  ifstream is(fname);
   if (!is) {
     cerr << "Error: could not open input file\n";
-    return 1;
+    exit(EXIT_FAILURE);
   }
   string tree_name;
   is >> tree_name;
-  ifstream is2(tree_name.c_str());//open nwk file
-  if (!is2) {
-    cerr << "Error: could not open tree file\n";
-    return 1;
-  }
   nodevector leaves;
-  node *root = build_tree(leaves, is2);
-  is2.close();
-  if (!root) {
-    cerr << "Error: could not construct input tree\n";
-    return 1;
-  }
+  node *root = build_tree(tree_name, leaves);
   clock_t tm=clock();
   char zl;
   is >> zl;//input collapse zerolength
@@ -398,7 +451,7 @@ int main() {
     float vgamma;
     is >> vgamma;
     cs.push_back(vcs);fdr.push_back(vfdr);gamma.push_back(vgamma);
-  };
+  }
   is.close();
   //end of input
   if (zl == 'y') {
@@ -410,13 +463,7 @@ int main() {
   nrLeaves(root);
   ladderize(root);
   string tname = "reordered_" + tree_name;
-  ofstream os(tname.c_str());
-  if (!os) {
-    cerr << "Error: could not open output file\n";
-    return 1;
-  }
-  append_stream(os, root);
-  os.close();
+  write_newick(tname, root);
   //end of output reordered tree
   //set up interleaf distances
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
@@ -475,9 +522,9 @@ int main() {
     //generate output filename
     stringstream ss;
     ss.str("phyclip_");
-    ss << "cs" << showpoint  << cs[t]
-       << "_fdr" << setprecision(1) << fdr[t]
-       << "_gam" << setprecision(2) << gamma[t] << "_" << tree_name << ".";
+    ss << "cs"  << cs[t]
+       << "_fdr" << setw(3) << fdr[t]
+       << "_gam" << setprecision(2)  << showpoint<< gamma[t] << "_" << tree_name << ".";
     string fname_prefix = ss.str();
     glp_prob *mip = glp_create_prob();
     glp_set_prob_name(mip, "cluster");
@@ -524,59 +571,24 @@ int main() {
     glp_iocp parm;
     glp_init_iocp(&parm);
     int err = glp_intopt(mip, &parm);
-    cout << "Return value (should be 0): " << err << endl;
-    cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
+    if (err != 0) {
+      cerr << "Error: return value = " << err << "(should be 0)" << endl;
+      exit(EXIT_FAILURE);
+    }      
+    //cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
     nodevector clusters;
     for (int i=1;i<=N;i++) {
       if (glp_mip_col_val(mip, i) == 1 ) {
-	//cout << glp_get_col_name(mip, i) sp ":" << endl;
 	clusters.push_back(sel_nodes[i-1]);
-	//printLeaves(sel_nodes[i-1]);
-	//cout << endl;
       }
     }
     glp_delete_prob(mip);
     delete[] ia;
     delete[] ja;
     delete[] ar;
-    fname = fname_prefix + "tre";
-    ofstream os(fname.c_str());
-    if (!os) {
-      cerr << "Error: could not create a nexus file\n";
-      return 1;
-    }
-    write_nexus(os, root, leaves, clusters);
-    os.close();
+    write_nexus(fname_prefix, root, leaves, clusters);
+    write_txt(fname_prefix, root, leaves, clusters);
+    write_stats(fname_prefix, root, leaves, clusters);
   }
-  /*
-  //auxiliary output
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printAncestors(n);
-    cout << endl;
-  }
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    printLeaves(n);
-    cout << endl;
-  }
-  ostream_iterator<float> os(cout, " ");
-  for (auto n: sel_nodes) {
-    cout << n->info << ": ";
-    copy(all(n->D),os);
-    cout << endl;
-  }
-  for (unsigned int i = 1;i < N;i++) {
-    for (unsigned int j = 0;j < i;j++) {
-      cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t'
-	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
-    }
-  }
-  cerr << "Do you want to find clusters with glpk(y/n)?\n";
-  char cl;
-  cin >> cl;
-  if (cl == 'y') {
-  //start clustering
-  */
   show_event("total time", tm);
 }
