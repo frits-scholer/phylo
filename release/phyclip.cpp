@@ -261,24 +261,6 @@ void printLeaves(node *root, node *cl, map<node*,node*>& tc) {
   if (root->isleaf) tc[root] = cl;
 }
 
-void printAncestors(node *root) {//prints all nontrivial ancestors
-  node* z = root;
-  while (true) {
-    z = z->parent;
-    if (is_root(z)) break;
-    cout << z->info << " ";
-  }
-}
-
-void printNodes(node *root) {
-  for_each(all(root->children),[&](node *nd){printNodes(nd);});
-  if (!root->isleaf) {
-    cout << root->info sp root->children.size() sp ':';
-    printAncestors(root);
-    cout << endl;
-  }
-}
-
 void ladderize(node *root) {
   for (auto it = begin(root->children);it != end(root->children);it++) {
     ladderize(*it);
@@ -424,35 +406,42 @@ void write_stats(const string& fname_prefix, node *root, nodevector& leaves, nod
   }
 }
 
-int main() {
-  cout << "Please enter name of file with the input parameters:\n";
-  string fname;
-  cin >> fname;
-  ifstream is(fname);
-  if (!is) {
-    cerr << "Error: could not open input file\n";
+int main(int argc, char* argv[]) {
+  istream* is;//A Bjarne Stroustrup trick to allow redirection or an input file
+  switch(argc) {
+  case 1:
+    is = &cin;
+    break;
+  case 2:
+    is = new ifstream(argv[1]);
+    if (!(*is)) {
+      cerr << "Error: could not open input file\n";
+      exit(EXIT_FAILURE);
+    }
+    break;
+  default:
+    cerr << "too many arguments\n";
     exit(EXIT_FAILURE);
   }
   string tree_name;
-  is >> tree_name;
+  (*is) >> tree_name;
   nodevector leaves;
   node *root = build_tree(tree_name, leaves);
   clock_t tm=clock();
   char zl;
-  is >> zl;//input collapse zerolength
+  (*is) >> zl;//input collapse zerolength
   //Start looping to complete the input
   vector<int> cs;vector<float> fdr;vector<float> gamma;
-  while (is) {
+  while (*is) {
     int vcs;
-    is >> vcs;
-    if (!is) break;
+    (*is) >> vcs;
+    if (!(*is)) break;
     float vfdr;
-    is >> vfdr;
+    (*is) >> vfdr;
     float vgamma;
-    is >> vgamma;
+    (*is) >> vgamma;
     cs.push_back(vcs);fdr.push_back(vfdr);gamma.push_back(vgamma);
   }
-  is.close();
   //end of input
   if (zl == 'y') {
     rzb_nodes(root->children);
@@ -575,7 +564,6 @@ int main() {
       cerr << "Error: return value = " << err << "(should be 0)" << endl;
       exit(EXIT_FAILURE);
     }      
-    //cout << "Nr of clustered leaves: " << glp_mip_obj_val(mip) << endl;
     nodevector clusters;
     for (int i=1;i<=N;i++) {
       if (glp_mip_col_val(mip, i) == 1 ) {
