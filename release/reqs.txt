@@ -1,6 +1,6 @@
 §1 Introduction I/O parameters
 
-User input:
+Command line argument:
 name of input file e.g. ex1.in
      
 Input file
@@ -47,7 +47,7 @@ Number of clustered sequences(1), percentage(2), number of selected clusters(3)
 Nnnn: space delimited interleaf distance distribution of clustered node N (for calulation of 4-7)
 InnnJnnn: inter-NODE distance of selected clusters I and J (for calculation of 8-11)
 
-*.tmp
+tmp.out
 contains ancestors and q values of selected nodes for the gurobi solver
 Nnnn: space delimited selected ancestors of N
 ...
