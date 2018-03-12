@@ -322,9 +322,42 @@ void write_ancestors(ostream&os, nodevector& sel_nodes) {
   os << endl;
 }
 
-void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q);
-void write_distributions(ostream&os, nodevector& sel_nodes);
-void write_internode_distances(ostream&os, nodevector& sel_nodes);
+void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q, vector<bool> sel) {
+  int N = sel_nodes.size();
+  auto it = begin(sel);
+  auto itq = begin(q);
+  for (int i = 1;i < N;i++) {
+    for (int j = 0;j < i;j++) {
+      if (*it) {
+	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << 'Q' << *itq << endl;
+	itq++;
+      }
+      it++;
+    }
+  }
+  os << endl;
+}
+
+void write_distributions(ostream&os, nodevector& sel_nodes) {
+    ostream_iterator<float> osf(os, " ");
+    for_each(all(sel_nodes),[&](node* nd){
+	os << 'N' << nd->info << ": ";
+	copy(all(nd->D),osf);
+	os << endl;
+      });
+    os << endl;
+}
+
+void write_internode_distances(ostream&os, nodevector& sel_nodes) {
+  int N = sel_nodes.size();
+  for (int i = 1;i < N;i++) {
+    for (int j = 0;j < i;j++) {
+	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << ": "
+	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
+    }
+  }
+  os << endl;
+}
 
 int main(int argc, char* argv[]) {
   istream* is;//A Bjarne Stroustrup trick to allow redirection or an input file
@@ -432,9 +465,9 @@ int main(int argc, char* argv[]) {
     vector<float> q(p.size());
     bh_fdr(p,q);
     write_ancestors(os, sel_nodes);
-    //write_qvals(os, sel_nodes, q);
-    //write_distributions(os, sel_nodes);
-    //write_internode_distances(os, sel_nodes);
+    write_qvals(os, sel_nodes, q, sel);
+    write_distributions(os, sel_nodes);
+    write_internode_distances(os, sel_nodes);
   }
   show_event("total time", tm);
 }
