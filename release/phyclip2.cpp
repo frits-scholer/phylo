@@ -255,11 +255,6 @@ void calc_mean(node *root, vector<node_mean>& v) {
   }
 }
 
-void printLeaves(node *root, node *cl, map<node*,node*>& tc) {
-  for_each(all(root->children),[&](node *nd){printLeaves(nd, cl, tc);});
-  if (root->isleaf) tc[root] = cl;
-}
-
 void ladderize(node *root) {
   for (auto it = begin(root->children);it != end(root->children);it++) {
     ladderize(*it);
@@ -356,6 +351,20 @@ void write_internode_distances(ostream&os, nodevector& sel_nodes) {
 	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
     }
   }
+  os << endl;
+}
+
+void printLeaves(ostream& os, node *root) {
+  for_each(all(root->children),[&](node *nd){printLeaves(os, nd);});
+  if (root->isleaf) os << root->info << ' ';
+}
+
+void write_leaves(ostream&os, nodevector& sel_nodes) {
+  for_each(all(sel_nodes),[&](node *nd){
+      os << 'N' << nd->info << ": ";
+      printLeaves(os, nd);
+      os << endl;
+    });
   os << endl;
 }
 
@@ -469,6 +478,7 @@ int main(int argc, char* argv[]) {
     write_qvals(os, sel_nodes, q, sel);
     write_distributions(os, sel_nodes);
     write_internode_distances(os, sel_nodes);
+    write_leaves(os, sel_nodes);
   }
   show_event("total time", tm);
 }

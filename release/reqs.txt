@@ -55,6 +55,7 @@ InnnJnnnQfff (Q value of node I and J)
 ...
 Nnnn: space delimited interleaf distances of selected node N
 InnnJnnn: inter-NODE distances of selected nodes I and J
+Nnnn: space delimited leaves of selected node N
 
 §2 Flowchart
 
