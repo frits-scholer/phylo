@@ -490,16 +490,16 @@ int main(int argc, char* argv[]) {
       for (int j = 0;j < i;j++) {
 	sel.push_back(false);
 	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-	/*
+
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
 	  sel.back()=true;
 	}
-	else */{
-	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
-	  //if (ca != sel_nodes[j]->parent) continue; 
+	else {
+	  node* ca = sel_nodes[i]->parent;
+	  if (ca != sel_nodes[j]->parent) continue; 
 	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	  p.push_back(max(ksi.second, ksj.second));
