@@ -463,11 +463,13 @@ int main(int argc, char* argv[]) {
 	  sel.back()=true;
 	}
 	else */{
-	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
+	  //node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
 	  //if (ca != sel_nodes[j]->parent) continue; 
-	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
-	  p.push_back(max(ksi.second, ksj.second));
+	  //auto ksi = kstwo(sel_nodes[i]->D, ca->D);
+	  //auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	  //p.push_back(max(ksi.second, ksj.second));
+	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
+	  p.push_back(ks.second);
 	  sel.back()=true;
 	}
       }
