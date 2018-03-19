@@ -281,7 +281,7 @@ void preSort(node *root) {
   for (auto it = begin(root->children);it != end(root->children);it++) {
     preSort(*it);
   }
-  if (!(root->isleaf) && (*it)->selected) sort(all(root->D));
+  if (!(root->isleaf) && root->selected) sort(all(root->D));
 }
 
 void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx, map<string,int>& node_indx) {
