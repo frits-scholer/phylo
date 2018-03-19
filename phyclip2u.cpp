@@ -317,17 +317,15 @@ void write_ancestors(ostream&os, nodevector& sel_nodes) {
   os << endl;
 }
 
-void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q, vector<bool> sel) {
+void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q) {
   int N = sel_nodes.size();
-  auto it = begin(sel);
   auto itq = begin(q);
   for (int i = 1;i < N;i++) {
     for (int j = 0;j < i;j++) {
-      if (*it) {
-	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << 'Q' << *itq << endl;
+	os << 'I' << sel_nodes[i]->info
+	   << 'J' << sel_nodes[j]->info
+	   << 'Q' << *itq << endl;
 	itq++;
-      }
-      it++;
     }
   }
   os << endl;
@@ -455,35 +453,30 @@ int main(int argc, char* argv[]) {
     //needed for write_ancestors
     clearselect_nodes(root);
     for_each(all(sel_nodes),[](node *nd){nd->selected=true;});
-    vector<bool> sel;
     vector<float> p;
     int N = sel_nodes.size();  
     for (int i = 1;i < N;i++) {
       for (int j = 0;j < i;j++) {
-	sel.push_back(false);
 	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
 	else {
 	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
-	  //if (ca != sel_nodes[j]->parent) continue; 
 	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	  p.push_back(max(ksi.second, ksj.second));
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
       }
     }
     vector<float> q(p.size());
     bh_fdr(p,q);
     write_ancestors(os, sel_nodes);
-    write_qvals(os, sel_nodes, q, sel);
+    write_qvals(os, sel_nodes, q);
     write_distributions(os, sel_nodes);
     write_internode_distances(os, sel_nodes);
     write_leaves(os, sel_nodes);

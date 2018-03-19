@@ -492,27 +492,22 @@ int main(int argc, char* argv[]) {
     //next 2 lines might be redundant
     clearselect_nodes(root);
     for_each(all(sel_nodes),[](node *nd){nd->selected=true;});
-    vector<bool> sel;
+
     vector<float> p;
     int N = sel_nodes.size();  
     for (int i = 1;i < N;i++) {
       for (int j = 0;j < i;j++) {
-	sel.push_back(false);
 	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
-
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
 	else {
 	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
-	  //if (ca != sel_nodes[j]->parent) continue; 
 	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	  p.push_back(max(ksi.second, ksj.second));
-	  sel.back()=true;
 	}
       }
     }
@@ -550,19 +545,15 @@ int main(int argc, char* argv[]) {
       if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx, node_indx);
     }
     auto itq = begin(q);
-    auto isel = begin(sel);
     int row_n = N + 1;
     for (int i = 1;i < N;i++) {
       for (int j = 0;j < i;j++) {
-	if (*isel) {
 	  glp_add_rows(mip, 1);//add constraint row
 	  glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + fdr[t] - *itq);
 	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
 	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
 	  row_n++;
 	  itq++;
-	}
-	isel++;
       }
     }
     glp_load_matrix(mip, indx-1, ia, ja, ar);
