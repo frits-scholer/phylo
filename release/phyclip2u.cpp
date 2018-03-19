@@ -464,9 +464,10 @@ int main(int argc, char* argv[]) {
 	  p.push_back(ks.second);
 	}
 	else {
-	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
-	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	  distribution ij_union((sel_nodes[i]->D).size()+(sel_nodes[j]->D).size());
+	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), ij_union.begin());
+	  auto ksi = kstwo(sel_nodes[i]->D, ij_union);
+	  auto ksj = kstwo(sel_nodes[j]->D, ij_union);
 	  p.push_back(max(ksi.second, ksj.second));
 	}
       }
