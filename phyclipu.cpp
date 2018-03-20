@@ -37,7 +37,8 @@ float number_value;
 
 
 struct node;
-typedef vector<float> distribution;
+typedef pair<node*,node*> node_pair;
+typedef vector<pair<float, node_pair>> distribution;
 typedef list<node*> nodelist;
 typedef vector<node*> nodevector;
 typedef pair<float, node*> node_mean;
@@ -54,7 +55,7 @@ struct node {
   node(): parent(nullptr), nrleaves(0), selected(false), isleaf(false) {}
 };
 
-vector<pair<node*,node*>> zero_nodes;
+vector<node_pair> zero_nodes;
 nodevector merge_nodes;
 
 bool ladder_sort(const node *a, node *b) {
@@ -233,25 +234,27 @@ node* common_ancestor(node* x, node* y) {
   }
 }
 
-void process_distance(node* x, node* y) {
-  node* z = common_ancestor(x, y);
-  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {
-    z->D.push_back(ild);
-    if (is_root(z)) return;
-    z = z->parent;
-  }
-}
-
 float calc_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
   return  ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
+void process_distance(node* x, node* y) {
+  node* z = common_ancestor(x, y);
+  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  while (true) {
+    z->D.push_back(make_pair(ild,make_pair(x, y)));
+    if (is_root(z)) return;
+    z = z->parent;
+  }
+}
+
 void calc_mean(node *root, vector<node_mean>& v) {
   for_each(all(root->children),[&](node *nd){calc_mean(nd,v);});
   if (!(root->isleaf)) {
-    float S = accumulate(all(root->D),0.0);
+    float S = accumulate(all(root->D),0.0, [](float A, pair<float, node_pair> d) {
+	A += d.first; return A;
+      });
     v.push_back(node_mean(S/(root->D).size(), root));
   }
 }
@@ -381,6 +384,12 @@ void write_txt(const string& fname_prefix, node *root, nodevector& leaves, nodev
 	  (taxaclusters[nl]?taxaclusters[nl]->info:"unclustered") << endl;});
 }
 
+vector<float> dist_x(const distribution& D) {
+  vector<float> v;
+  for (auto d : D) v.push_back(d.first);
+  return v;
+}
+
 void write_stats(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
     string fn = fname_prefix + "stats";
     ofstream os(fn);
@@ -395,7 +404,7 @@ void write_stats(const string& fname_prefix, node *root, nodevector& leaves, nod
     ostream_iterator<float> osf(os, " ");
     for_each(all(clusters),[&](node* cl){
 	os << 'N' << cl->info << ": ";
-	copy(all(cl->D),osf);
+	copy(all(dist_x(cl->D)),osf);
 	os << endl;
       });
     for (unsigned int j = 1;j < clusters.size();j++) {
@@ -492,7 +501,6 @@ int main(int argc, char* argv[]) {
     //next 2 lines might be redundant
     clearselect_nodes(root);
     for_each(all(sel_nodes),[](node *nd){nd->selected=true;});
-
     vector<float> p;
     int N = sel_nodes.size();  
     for (int i = 1;i < N;i++) {
@@ -500,13 +508,13 @@ int main(int argc, char* argv[]) {
 	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
-	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
+	  auto ks = kstwo(dist_x(sel_nodes[i]->D), dist_x(sel_nodes[j]->D));
 	  p.push_back(ks.second);
 	}
 	else {
 	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
-	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	  auto ksi = kstwo(dist_x(sel_nodes[i]->D), dist_x(ca->D));
+	  auto ksj = kstwo(dist_x(sel_nodes[j]->D), dist_x(ca->D));
 	  p.push_back(max(ksi.second, ksj.second));
 	}
       }
