@@ -522,14 +522,12 @@ int main(int argc, char* argv[]) {
 	  p.push_back(ks.second);
 	}
 	else {
-	  multiset<float> S;
+	  distribution d_union(sel_nodes[i]->D.size()+sel_nodes[j]->D.size());
+	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), d_union.begin());
 	  for (auto il : sel_nodes[i]->leaves)
 	    for (auto jl : sel_nodes[j]->leaves)
-	      S.insert(interleaf_dist[make_pair(il,jl)]);
-	  distribution d_union(sel_nodes[i]->D.size()+sel_nodes[j]->D.size()+S.size());
-	  distribution d1(sel_nodes[i]->D.size()+sel_nodes[j]->D.size());
-	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), d1.begin());
-	  merge(all(d1), all(S), d_union.begin());
+	      d_union.push_back(interleaf_dist[make_pair(il,jl)]);
+	  sort(all(d_union));
 	  auto ksi = kstwo(sel_nodes[i]->D, d_union);
 	  auto ksj = kstwo(sel_nodes[j]->D, d_union);
 	  p.push_back(max(ksi.second, ksj.second));
