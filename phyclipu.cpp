@@ -12,6 +12,7 @@
 #include <iterator>
 #include <list>
 #include <iomanip>
+#include <set>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
 #include "glpk.h"
@@ -521,16 +522,14 @@ int main(int argc, char* argv[]) {
 	  p.push_back(ks.second);
 	}
 	else {
-	  distribution d_union(sel_nodes[i]->D.size()+sel_nodes[j]->D.size());
-	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), d_union.begin());
-	  for (auto it = sel_nodes[i]->leaves.begin();
-	       it != sel_nodes[i]->leaves.end();++it)
-	  for (auto jt = sel_nodes[j]->leaves.begin();
-	       jt != sel_nodes[j]->leaves.end();++jt)
-	    d_union.push_back(interleaf_dist[make_pair(*it,*jt)]);
-
-	  sort(all(d_union));
-
+	  multiset<float> S;
+	  for (auto il : sel_nodes[i]->leaves)
+	    for (auto jl : sel_nodes[j]->leaves)
+	      S.insert(interleaf_dist[make_pair(il,jl)]);
+	  distribution d_union(sel_nodes[i]->D.size()+sel_nodes[j]->D.size()+S.size());
+	  distribution d1(sel_nodes[i]->D.size()+sel_nodes[j]->D.size());
+	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), d1.begin());
+	  merge(all(d1), all(S), d_union.begin());
 	  auto ksi = kstwo(sel_nodes[i]->D, d_union);
 	  auto ksj = kstwo(sel_nodes[j]->D, d_union);
 	  p.push_back(max(ksi.second, ksj.second));
