@@ -249,7 +249,7 @@ float calc_distance(node* x, node* y) {
 
 void calc_mean(node *root, vector<node_mean>& v) {
   for_each(all(root->children),[&](node *nd){calc_mean(nd,v);});
-  if (!(root->isleaf) && root->selected) {
+  if (!(root->isleaf)) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
   }
@@ -275,7 +275,7 @@ void preSort(node *root) {
   for (auto it = begin(root->children);it != end(root->children);it++) {
     preSort(*it);
   }
-  if (!(root->isleaf)) {sort(all(root->D));root->selected=false;}
+  if (!(root->isleaf) && root->selected) sort(all(root->D));
 }
 
 void show_event(string s, clock_t& tm) {
@@ -317,17 +317,15 @@ void write_ancestors(ostream&os, nodevector& sel_nodes) {
   os << endl;
 }
 
-void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q, vector<bool> sel) {
+void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q) {
   int N = sel_nodes.size();
-  auto it = begin(sel);
   auto itq = begin(q);
   for (int i = 1;i < N;i++) {
     for (int j = 0;j < i;j++) {
-      if (*it) {
-	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << 'Q' << *itq << endl;
+	os << 'I' << sel_nodes[i]->info
+	   << 'J' << sel_nodes[j]->info
+	   << 'Q' << *itq << endl;
 	itq++;
-      }
-      it++;
     }
   }
   os << endl;
@@ -368,6 +366,11 @@ void write_leaves(ostream&os, nodevector& sel_nodes) {
   os << endl;
 }
 
+void clearselect_nodes(node *root) {
+  for_each(all(root->children),[](node *nd){clearselect_nodes(nd);});
+  if (!(root->isleaf)) root->selected = false;
+}
+  
 int main(int argc, char* argv[]) {
   istream* is;//A Bjarne Stroustrup trick to allow redirection or an input file
   switch(argc) {
@@ -426,7 +429,6 @@ int main(int argc, char* argv[]) {
   //From here on iterate over parameter sets
   ofstream os("tmp.out");
   for (unsigned int t = 0;t < cs.size();t++) {
-    select_clades(root, cs[t]);
     vector<node_mean> means;
     calc_mean(root, means);
     sort(all(means));
@@ -442,39 +444,37 @@ int main(int argc, char* argv[]) {
     float upperbound = gm + gamma[t] * mad;
     it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
     means.erase(it, end(means));
-    //presort all data
-    preSort(root);//turn selected off
+    select_clades(root, cs[t]);//cs selection
+   //presort all data
+    preSort(root);
     nodevector sel_nodes;
-    for_each(means.rbegin(),means.rend(),[&](node_mean m){
-	sel_nodes.push_back(m.second);
-	m.second->selected = true;});//set selected true if selected
-    vector<bool> sel;
+    for_each(all(means),[&](node_mean m){
+	if (m.second->selected) sel_nodes.push_back(m.second);});
+    //needed for write_ancestors
+    clearselect_nodes(root);
+    for_each(all(sel_nodes),[](node *nd){nd->selected=true;});
     vector<float> p;
     int N = sel_nodes.size();  
     for (int i = 1;i < N;i++) {
       for (int j = 0;j < i;j++) {
-	sel.push_back(false);
 	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
 	else {
+	  node* ca = common_ancestor(sel_nodes[i],sel_nodes[j]);
 	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	  p.push_back(max(ksi.second, ksj.second));
-	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
-	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
       }
     }
     vector<float> q(p.size());
     bh_fdr(p,q);
     write_ancestors(os, sel_nodes);
-    write_qvals(os, sel_nodes, q, sel);
+    write_qvals(os, sel_nodes, q);
     write_distributions(os, sel_nodes);
     write_internode_distances(os, sel_nodes);
     write_leaves(os, sel_nodes);

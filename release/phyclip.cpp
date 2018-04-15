@@ -498,8 +498,6 @@ int main(int argc, char* argv[]) {
 	  sel.back()=true;
 	}
 	else {
-	  node* ca = sel_nodes[i]->parent;
-	  if (ca != sel_nodes[j]->parent) continue; 
 	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
 	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
 	  p.push_back(max(ksi.second, ksj.second));

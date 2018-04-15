@@ -12,8 +12,10 @@
 #include <iterator>
 #include <list>
 #include <iomanip>
+#include <set>
 #include "kstwo.hpp"
 #include "bh_fdr.hpp"
+#include "glpk.h"
 using namespace std;
 
 #define all(t) begin(t), end(t)
@@ -36,6 +38,7 @@ float number_value;
 
 
 struct node;
+typedef pair<node*,node*> node_pair;
 typedef vector<float> distribution;
 typedef list<node*> nodelist;
 typedef vector<node*> nodevector;
@@ -50,11 +53,13 @@ struct node {
   bool selected;
   bool isleaf;
   distribution D;//needed for KS
+  vector<node*> leaves;//needed for KS
   node(): parent(nullptr), nrleaves(0), selected(false), isleaf(false) {}
 };
 
-vector<pair<node*,node*>> zero_nodes;
+vector<node_pair> zero_nodes;
 nodevector merge_nodes;
+map<node_pair,float> ild;
 
 bool ladder_sort(const node *a, node *b) {
   return (a->nrleaves < b->nrleaves) ||
@@ -145,6 +150,14 @@ node* build_tree(const string& tree_name, nodevector& leaves) {
   return root;
 }
   
+int nrLeaves(node *root) {
+  if (root->isleaf) {root->nrleaves = 1;return 1;}
+  int N=0;
+  for_each(all(root->children),[&](node *nd){N +=  nrLeaves(nd);});
+  root->nrleaves = N;
+  return N;
+}
+
 int nr_of_children(node *root) {
   return root->children.size();
 }
@@ -194,14 +207,6 @@ void write_newick(const string& tname, node* root) {
   append_stream(os, root);
 }
 
-int nrLeaves(node *root) {
-  if (root->isleaf) {root->nrleaves = 1;return 1;}
-  int N=0;
-  for_each(all(root->children),[&](node *nd){N +=  nrLeaves(nd);});
-  root->nrleaves = N;
-  return N;
-}
-
 void select_clades(node *root, int cs) {
   if (root->isleaf) return;
   for_each(all(root->children),[&](node *nd){select_clades(nd,cs);});
@@ -232,27 +237,44 @@ node* common_ancestor(node* x, node* y) {
   }
 }
 
-void process_distance(node* x, node* y) {
-  node* z = common_ancestor(x, y);
-  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
-  while (true) {
-    z->D.push_back(ild);
-    if (is_root(z)) return;
-    z = z->parent;
-  }
-}
-
 float calc_distance(node* x, node* y) {
   node* z = common_ancestor(x, y);
   return  ancestor_distance(z, x) + ancestor_distance(z, y);
 }
 
+float process_distance(node* x, node* y) {//x and y are leaves
+  node* z = common_ancestor(x, y);
+  node* a = x->parent;
+  while (a != z) {
+    a->leaves.push_back(x);
+    a = a->parent;
+  }
+  a = y->parent;
+  while (a != z) {
+    a->leaves.push_back(y);
+    a = a->parent;
+  }
+  float ild = ancestor_distance(z, x) + ancestor_distance(z, y);
+  while (true) {
+    z->D.push_back(ild);
+    z->leaves.push_back(x);
+    z->leaves.push_back(y);
+    if (is_root(z)) return ild;
+    z = z->parent;
+  }
+}
+
 void calc_mean(node *root, vector<node_mean>& v) {
   for_each(all(root->children),[&](node *nd){calc_mean(nd,v);});
-  if (!(root->isleaf) && root->selected) {
+  if (!(root->isleaf)) {
     float S = accumulate(all(root->D),0.0);
     v.push_back(node_mean(S/(root->D).size(), root));
   }
+}
+
+void printLeaves(node *root, node *cl, map<node*,node*>& tc) {
+  for_each(all(root->children),[&](node *nd){printLeaves(nd, cl, tc);});
+  if (root->isleaf) tc[root] = cl;
 }
 
 void ladderize(node *root) {
@@ -275,7 +297,20 @@ void preSort(node *root) {
   for (auto it = begin(root->children);it != end(root->children);it++) {
     preSort(*it);
   }
-  if (!(root->isleaf)) {sort(all(root->D));root->selected=false;}
+  if (!(root->isleaf) && root->selected) sort(all(root->D));
+}
+
+void IndexAncestors(node *root, int *ia, int *ja, double *ar, int i, long& indx, map<string,int>& node_indx) {
+  node* z = root;
+  do {
+    z = z->parent;
+    if (node_indx[z->info]) {
+      ia[indx]=i;
+      ja[indx] = node_indx[z->info];
+      ar[indx]=1;
+      indx++;
+    }
+  } while (!is_root(z));
 }
 
 void show_event(string s, clock_t& tm) {
@@ -304,70 +339,94 @@ void cleanup_merge_nodes() {
   }
 }
 
-void write_ancestors(ostream&os, nodevector& sel_nodes) {
-  for_each(all(sel_nodes),[&](node *nd){
-      os << 'N' << nd->info << ": ";
-      node* z = nd;
-      while (!is_root(z)) {
-	z = z->parent;
-	if (z->selected) os << z->info << " ";
-      }
-      os << endl;
-    });
-  os << endl;
+void append_stream_nexus(ostream& os, node* root, map<string, string>& taxanrs) {
+  if (root->isleaf) {os << taxanrs[root->info] << ':' << root->distance;return;}
+  os << '(';
+  bool nfirst{false};
+  for_each(all(root->children),[&](node *nd){
+      if (nfirst) os << ','; else nfirst = true;
+      append_stream_nexus(os, nd, taxanrs);});
+  os << ')';
+  if (is_root(root)) os << ";" << endl;
+  else os << ':' << root->distance;
 }
 
-void write_qvals(ostream&os, nodevector& sel_nodes, vector<float>& q, vector<bool> sel) {
-  int N = sel_nodes.size();
-  auto it = begin(sel);
-  auto itq = begin(q);
-  for (int i = 1;i < N;i++) {
-    for (int j = 0;j < i;j++) {
-      if (*it) {
-	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << 'Q' << *itq << endl;
-	itq++;
-      }
-      it++;
-    }
+void annotate(node *root, node *cluster, map<string, string>& taxanrs) {
+  for_each(all(root->children),[&](node *nd){annotate(nd, cluster, taxanrs);});
+  if (root->isleaf)
+    taxanrs[root->info] = taxanrs[root->info] + "[&CLUSTER=" + cluster->info + ']';
+}
+
+void write_nexus(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+  string fn = fname_prefix + "tre";
+  ofstream os(fn);
+  if (!os) {
+    cerr << "Error: could not create a nexus file\n";
+    exit(EXIT_FAILURE);
   }
-  os << endl;
+  os << "#NEXUS" << endl << "Begin taxa;" << endl
+    tb "Dimensions ntax=" << leaves.size()
+     << ';' << endl tb2 "Taxlabels" << endl;
+  for_each(all(leaves),[&](node* l){os tb3 l->info << endl;});
+  os tb3 ';' << endl <<"End;" << endl
+	     << "Begin trees;" << endl tb "Translate" << endl;
+  map<string, string> taxanrs;
+  int i=0;
+  for_each(all(leaves),[&](node* l){
+      i++;
+      taxanrs[l->info]=to_string(i);
+      os tb2 right << i sp l->info << "," << endl;});
+  //annotate
+  for_each(all(clusters),[&](node* nd){annotate(nd, nd, taxanrs);});
+  os << ';' << endl << "tree TREE = ";
+  append_stream_nexus(os, root, taxanrs);
+  os << "End;" << endl;
 }
 
-void write_distributions(ostream&os, nodevector& sel_nodes) {
+void write_txt(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+    string fn = fname_prefix + "txt";
+    ofstream os(fn);
+    if (!os) {
+      cerr << "Error: could not create a txt file\n";
+     exit(EXIT_FAILURE);
+    }
+    map<node*, node*> taxaclusters;
+    for_each(all(clusters),[&](node* cl){printLeaves(cl, cl, taxaclusters);});
+    os << setw(60) << left << "taxa" tb "cluster" << endl;
+    for_each(all(leaves),[&](node* nl){os << setw(60) << nl->info tb setw(4) <<
+	  (taxaclusters[nl]?taxaclusters[nl]->info:"unclustered") << endl;});
+}
+
+void write_stats(const string& fname_prefix, node *root, nodevector& leaves, nodevector& clusters) {
+    string fn = fname_prefix + "stats";
+    ofstream os(fn);
+    if (!os) {
+      cerr << "Error: could not create a stats file\n";
+     exit(EXIT_FAILURE);
+    }
+    int nr_seq_cl = accumulate(all(clusters),0,[&](int S, node *nd){return S + nd->nrleaves;});
+    os << nr_seq_cl << endl
+       << setprecision(3)  << (nr_seq_cl*100.0)/leaves.size() << endl
+       << clusters.size() << endl;
     ostream_iterator<float> osf(os, " ");
-    for_each(all(sel_nodes),[&](node* nd){
-	os << 'N' << nd->info << ": ";
-	copy(all(nd->D),osf);
+    for_each(all(clusters),[&](node* cl){
+	os << 'N' << cl->info << ": ";
+	copy(all(cl->D),osf);
 	os << endl;
       });
-    os << endl;
-}
-
-void write_internode_distances(ostream&os, nodevector& sel_nodes) {
-  int N = sel_nodes.size();
-  for (int i = 1;i < N;i++) {
-    for (int j = 0;j < i;j++) {
-	os << 'I' << sel_nodes[i]->info << 'J' << sel_nodes[j]->info << ": "
-	   << calc_distance(sel_nodes[i], sel_nodes[j]) << endl;
+    for (unsigned int j = 1;j < clusters.size();j++) {
+    for (unsigned int i = 0;i < j;i++) {
+      os << 'I' << clusters[i]->info << 'J' << clusters[j]->info << ':'
+	   << calc_distance(clusters[i], clusters[j]) << endl;
     }
   }
-  os << endl;
 }
 
-void printLeaves(ostream& os, node *root) {
-  for_each(all(root->children),[&](node *nd){printLeaves(os, nd);});
-  if (root->isleaf) os << root->info << ' ';
+void clearselect_nodes(node *root) {
+  for_each(all(root->children),[](node *nd){clearselect_nodes(nd);});
+  if (!(root->isleaf)) root->selected = false;
 }
-
-void write_leaves(ostream&os, nodevector& sel_nodes) {
-  for_each(all(sel_nodes),[&](node *nd){
-      os << 'N' << nd->info << ": ";
-      printLeaves(os, nd);
-      os << endl;
-    });
-  os << endl;
-}
-
+  
 int main(int argc, char* argv[]) {
   istream* is;//A Bjarne Stroustrup trick to allow redirection or an input file
   switch(argc) {
@@ -417,18 +476,19 @@ int main(int argc, char* argv[]) {
   write_newick(tname, root);
   //end of output reordered tree
   //set up interleaf distances
+  map<node_pair,float> interleaf_dist;
   for (auto il=begin(leaves)+1;il != end(leaves);il++) {
     for (auto jl = begin(leaves);jl != il;jl++) {
-      process_distance(*il,*jl);
-    }
+      interleaf_dist[make_pair(*il,*jl)] = process_distance(*il,*jl);
+      interleaf_dist[make_pair(*jl,*il)] = interleaf_dist[make_pair(*il,*jl)];
+     }
   }
   tree_name.erase(tree_name.find('.'));
   //From here on iterate over parameter sets
-  ofstream os("tmp.out");
+  
   for (unsigned int t = 0;t < cs.size();t++) {
-    select_clades(root, cs[t]);
     vector<node_mean> means;
-    calc_mean(root, means);
+    calc_mean(root, means);//do for all nonleaf nodes
     sort(all(means));
     size_t msize = means.size();
     float gm;
@@ -442,42 +502,108 @@ int main(int argc, char* argv[]) {
     float upperbound = gm + gamma[t] * mad;
     it = upper_bound(all(means), node_mean(upperbound+0.00000001, nullptr));
     means.erase(it, end(means));
+    select_clades(root, cs[t]);//cs selection
     //presort all data
-    preSort(root);//turn selected off
+    preSort(root);//only sort if selected
     nodevector sel_nodes;
-    for_each(means.rbegin(),means.rend(),[&](node_mean m){
-	sel_nodes.push_back(m.second);
-	m.second->selected = true;});//set selected true if selected
-    vector<bool> sel;
+    for_each(all(means),[&](node_mean m){
+	if (m.second->selected) sel_nodes.push_back(m.second);});
+    //next 2 lines might be redundant
+    clearselect_nodes(root);
+    for_each(all(sel_nodes),[](node *nd){nd->selected=true;});
     vector<float> p;
-    int N = sel_nodes.size();  
-    for (int i = 1;i < N;i++) {
+    int N = sel_nodes.size();
+     for (int i = 1;i < N;i++) {
       for (int j = 0;j < i;j++) {
-	sel.push_back(false);
-	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\t';
+	//cout << sel_nodes[i]->info sp sel_nodes[j]->info << '\n';
 	if (is_ancestor(sel_nodes[i], sel_nodes[j]) ||
 	    is_ancestor(sel_nodes[j], sel_nodes[i])) {
 	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
 	  p.push_back(ks.second);
-	  sel.back()=true;
 	}
 	else {
-	  auto ksi = kstwo(sel_nodes[i]->D, ca->D);
-	  auto ksj = kstwo(sel_nodes[j]->D, ca->D);
+	  distribution d_union(sel_nodes[i]->D.size()+sel_nodes[j]->D.size());
+	  merge(all(sel_nodes[i]->D), all(sel_nodes[j]->D), d_union.begin());
+	  for (auto il : sel_nodes[i]->leaves)
+	    for (auto jl : sel_nodes[j]->leaves)
+	      d_union.push_back(interleaf_dist[make_pair(il,jl)]);
+	  sort(all(d_union));
+	  auto ksi = kstwo(sel_nodes[i]->D, d_union);
+	  auto ksj = kstwo(sel_nodes[j]->D, d_union);
 	  p.push_back(max(ksi.second, ksj.second));
-	  auto ks = kstwo(sel_nodes[i]->D, sel_nodes[j]->D);
-	  p.push_back(ks.second);
-	  sel.back()=true;
-	}
+	  }
       }
     }
+
     vector<float> q(p.size());
     bh_fdr(p,q);
-    write_ancestors(os, sel_nodes);
-    write_qvals(os, sel_nodes, q, sel);
-    write_distributions(os, sel_nodes);
-    write_internode_distances(os, sel_nodes);
-    write_leaves(os, sel_nodes);
+
+    //generate output filename
+    stringstream ss;
+    //ss.str("phyclip_");
+    ss << "cs"  << cs[t]
+       << "_fdr" << setw(3) << fdr[t]
+       << "_gam" << setprecision(2)  << showpoint<< gamma[t] << "_" << tree_name << ".";
+    string fname_prefix = ss.str();
+    glp_prob *mip = glp_create_prob();
+    glp_set_prob_name(mip, "cluster");
+    glp_set_obj_dir(mip, GLP_MAX);
+    glp_add_cols(mip, N);
+    long indx{1};
+    //set object
+    map<string,int> node_indx;
+    for (int i=1;i<=N;i++) {
+      node_indx[sel_nodes[i-1]->info] = indx;indx++;
+      int lv = sel_nodes[i-1]->nrleaves;
+      glp_set_col_name(mip, i, sel_nodes[i-1]->info.c_str());
+      glp_set_col_kind(mip, i, GLP_BV);
+      glp_set_obj_coef(mip, i, lv);
+    }
+    int *ia = new int [1+MAX_COEFF_NR];
+    int *ja = new int [1+MAX_COEFF_NR];
+    double *ar = new double [1+MAX_COEFF_NR];
+    glp_add_rows(mip, N);
+    indx = 1;
+    for (int i=1;i<=N;i++) {
+      glp_set_row_bnds(mip, i, GLP_DB, 0.0, 1.0);
+      ia[indx]=i;ja[indx]=i;ar[indx]=1;indx++;
+      if (sel_nodes[i-1] != root) IndexAncestors(sel_nodes[i-1], ia, ja, ar, i, indx, node_indx);
+    }
+    auto itq = begin(q);
+    int row_n = N + 1;
+    for (int i = 1;i < N;i++) {
+      for (int j = 0;j < i;j++) {
+	  glp_add_rows(mip, 1);//add constraint row
+	  glp_set_row_bnds(mip, row_n, GLP_UP, 0.0, 2*C + fdr[t] - *itq);
+	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[i]->info];ar[indx]=C;indx++;
+	  ia[indx]=row_n;ja[indx]=node_indx[sel_nodes[j]->info];ar[indx]=C;indx++;
+	  row_n++;
+	  itq++;
+      }
+    }
+    glp_load_matrix(mip, indx-1, ia, ja, ar);
+    glp_simplex(mip, NULL);
+    glp_iocp parm;
+    glp_init_iocp(&parm);
+    int err = glp_intopt(mip, &parm);
+    if (err != 0) {
+      cerr << "Error: return value = " << err << "(should be 0)" << endl;
+      exit(EXIT_FAILURE);
+    }      
+    nodevector clusters;
+    for (int i=1;i<=N;i++) {
+      if (glp_mip_col_val(mip, i) == 1 ) {
+	clusters.push_back(sel_nodes[i-1]);
+      }
+    }
+    glp_delete_prob(mip);
+    delete[] ia;
+    delete[] ja;
+    delete[] ar;
+    write_nexus(fname_prefix, root, leaves, clusters);
+    write_txt(fname_prefix, root, leaves, clusters);
+    write_stats(fname_prefix, root, leaves, clusters);
+
   }
   show_event("total time", tm);
 }
